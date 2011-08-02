@@ -30,7 +30,7 @@ public class JPA2Employee {
         employee1.setName("Anthony");
         employee1.setSalary(1l);
         employee1.setComments("He is ok!");
-        employee1.setPicture(Resources.toByteArray(Resources.getResource("./images/Manager-Cropped.jpg")));
+        employee1.setPicture(Resources.toByteArray(JPA2Employee.class.getResource("/images/Manager-Cropped.jpg")));
         employee1.setEmployeeType(EmployeeType.CONTRACT_EMPLOYEE);
         Calendar dob = Calendar.getInstance();
         dob.set(1987, 6, 2);
