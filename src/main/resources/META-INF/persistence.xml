@@ -11,7 +11,7 @@
     <class>com.sevenrtc.jpa2employee.Project</class>
     <class>com.sevenrtc.jpa2employee.Company</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:h2:~/Documents/Projects/DBs/h2/employee/employee;AUTO_SERVER=TRUE;SCHEMA=HR"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:./db/employee/employee;AUTO_SERVER=TRUE;SCHEMA=HR"/>
       <property name="javax.persistence.jdbc.password" value="teste"/>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
       <property name="javax.persistence.jdbc.user" value="teste"/>
