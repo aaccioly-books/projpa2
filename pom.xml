@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <eclipselink.version>2.3.0</eclipselink.version>
     </properties>
-    
+        
     <build>
         <plugins>
             <plugin>
@@ -54,6 +54,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Para montar uma release execute o comando:
+                    mvn clean package assembly:single 
+                 Um diretório "dist" será criado em target com o jar, bibliotecas e db           
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.sevenrtc.jpa2employee.JPA2Employee</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <finalName>dist</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>src/main/assembly/dist.xml</descriptor>
+                    </descriptors>
+                </configuration>
             </plugin>
         </plugins>
     </build>
