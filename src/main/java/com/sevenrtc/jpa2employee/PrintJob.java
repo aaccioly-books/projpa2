@@ -1,10 +1,10 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -13,9 +13,20 @@ import javax.persistence.Id;
 @Entity
 public class PrintJob implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    public PrintJob() {
+    }
+
+    public PrintJob(int id) {
+        this.id = id;
+    }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="JOB_ID")
     private int id;
+    
+    @ManyToOne
+    private PrintQueue queue;
 
     public int getId() {
         return id;
@@ -23,6 +34,14 @@ public class PrintJob implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public PrintQueue getQueue() {
+        return queue;
+    }
+
+    public void setQueue(PrintQueue queue) {
+        this.queue = queue;
     }
 
     @Override
