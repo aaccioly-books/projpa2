@@ -1,32 +1,21 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 
 /**
  *
- * @author Anthony
+ * @author Anthony Accioly <a.accioly at 7rtc.com>
  */
 @Entity
-public class Department implements Serializable {
-
+public class PrintJob implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Column(unique = true)
-    private String name;
-    
-    @OneToMany(mappedBy="department")
-    @OrderBy("name ASC")
-    private List<Employee> employees;
 
     public int getId() {
         return id;
@@ -34,22 +23,6 @@ public class Department implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public List<Employee> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
     }
 
     @Override
@@ -62,10 +35,10 @@ public class Department implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Department)) {
+        if (!(object instanceof PrintJob)) {
             return false;
         }
-        Department other = (Department) object;
+        PrintJob other = (PrintJob) object;
         if (this.id != other.id) {
             return false;
         }
@@ -74,6 +47,7 @@ public class Department implements Serializable {
 
     @Override
     public String toString() {
-        return "jpa2employee.Department[ id=" + id + " ]";
+        return "com.sevenrtc.jpa2employee.PrintJob[ id=" + id + " ]";
     }
+    
 }

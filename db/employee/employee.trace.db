@@ -549,3 +549,14 @@ org.h2.jdbc.JdbcSQLException: The object is already closed [90007-155]
 	at org.openide.nodes.AsynchChildren.run(AsynchChildren.java:189)
 	at org.openide.util.RequestProcessor$Task.run(RequestProcessor.java:1424)
 	at org.openide.util.RequestProcessor$Processor.run(RequestProcessor.java:1968)
+08-22 16:12:30 jdbc[2]: The connection was not closed by the application and is garbage collected [90018-155]
+java.lang.Exception: Stack Trace
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:123)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:96)
+	at org.h2.Driver.connect(Driver.java:72)
+	at org.netbeans.modules.db.explorer.DbDriverManager.getConnection(DbDriverManager.java:131)
+	at org.netbeans.modules.db.explorer.DatabaseConnection.doConnect(DatabaseConnection.java:893)
+	at org.netbeans.modules.db.explorer.DatabaseConnection.access$500(DatabaseConnection.java:121)
+	at org.netbeans.modules.db.explorer.DatabaseConnection$7.run(DatabaseConnection.java:959)
+	at org.openide.util.RequestProcessor$Task.run(RequestProcessor.java:1424)
+	at org.openide.util.RequestProcessor$Processor.run(RequestProcessor.java:1968)
