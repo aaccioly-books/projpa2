@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -58,6 +59,8 @@ public class JPA2Employee {
         company.setName("7RTC");
         company.setAddress(address);
         em.persist(company);
+        
+        camposOrdenados(em);
 
         em.getTransaction().commit();
 
@@ -71,5 +74,35 @@ public class JPA2Employee {
         File toWrite = new File(System.getProperty("user.home") + "/Desktop/teste.jpg");
         Files.write(employees.get(0).getPicture(), toWrite);
 
+    }
+    
+    private static void camposOrdenados(EntityManager em) {
+        
+        PrintQueue pq = new PrintQueue();
+        pq.setName("Default");
+        
+        List<PrintJob> jobs = new ArrayList<PrintJob>();
+        PrintJob job1 = new PrintJob(1);
+        PrintJob job2 = new PrintJob(2);
+        PrintJob job3 = new PrintJob(3);
+        
+        jobs.add(job1);
+        jobs.add(job2);
+        jobs.add(job3);
+        
+        pq.setJobs(jobs);
+        
+        em.persist(pq);
+        System.out.println(pq);
+        
+        // swap job 2 with job 1
+        job2 = pq.getJobs().remove(1);
+        System.out.println(job2);
+        pq.getJobs().add(0, job2);
+        
+        em.persist(pq);
+
+        pq = em.find(PrintQueue.class, "Default");
+        System.out.println(pq);     
     }
 }
