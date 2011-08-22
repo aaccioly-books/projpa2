@@ -10,6 +10,7 @@
     <class>com.sevenrtc.jpa2employee.VacationEntry</class>
     <class>com.sevenrtc.jpa2employee.Project</class>
     <class>com.sevenrtc.jpa2employee.Company</class>
+    <class>com.sevenrtc.jpa2employee.PrintJob</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:./db/employee/employee;AUTO_SERVER=TRUE;SCHEMA=HR"/>
       <property name="javax.persistence.jdbc.password" value="teste"/>
