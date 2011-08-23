@@ -560,3 +560,12 @@ java.lang.Exception: Stack Trace
 	at org.netbeans.modules.db.explorer.DatabaseConnection$7.run(DatabaseConnection.java:959)
 	at org.openide.util.RequestProcessor$Task.run(RequestProcessor.java:1424)
 	at org.openide.util.RequestProcessor$Processor.run(RequestProcessor.java:1968)
+08-23 12:01:08 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "PRINTJOB" not found; SQL statement:
+ALTER TABLE PRINTJOB DROP CONSTRAINT FK_PRINTJOB_QUEUE_NAME [42102-158]
+08-23 12:01:09 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "PRINTJOB" not found; SQL statement:
+DROP TABLE PRINTJOB [42102-158]
+08-23 12:01:09 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "PRINTQUEUE" not found; SQL statement:
+DROP TABLE PRINTQUEUE [42102-158]
