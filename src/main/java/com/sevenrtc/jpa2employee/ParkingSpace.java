@@ -50,7 +50,15 @@ public class ParkingSpace implements Serializable {
         this.lot = lot;
     }
 
-    @Override
+    public Employee getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 0;
         hash += (int) id;
