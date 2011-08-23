@@ -19,6 +19,7 @@ public class JPA2Employee {
 
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException se houver qualquer falha
      */
     public static void main(String[] args) throws IOException {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPA2EmployeePU");
@@ -89,7 +90,10 @@ public class JPA2Employee {
         jobs.add(job1);
         jobs.add(job2);
         jobs.add(job3);
-        
+
+        job1.setQueue(pq);
+        job2.setQueue(pq);
+        job3.setQueue(pq);
         pq.setJobs(jobs);
         
         em.persist(pq);
