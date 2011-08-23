@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><component name="dataSourceStorage">
+  <data-source source="LOCAL" name="Employee" product="H2" version="1.3.158 (2011-07-17)" jdbc-version="3.0" driver-version="1.3.158 (2011-07-17)" uuid="b5c1550e-327b-4e42-8319-5f88812d7e4f">
+    <identifier-quote-string>"</identifier-quote-string>
+    <jdbc-driver>org.h2.Driver</jdbc-driver>
+    <jdbc-url>jdbc:h2:/Volumes/Windows 7 - Pro/Users/Anthony/Documents/Projects/Java/Maven/jpa2employee/db/employee/employee;AUTO_SERVER=TRUE;SCHEMA=HR</jdbc-url>
+    <user-name>teste</user-name>
+    <user-password>dfdedfcfdfd9dfdedfcf</user-password>
+    <libraries>
+      <library>
+        <url>jar://$MAVEN_REPOSITORY$/com/h2database/h2/1.3.158/h2-1.3.158.jar!/</url>
+      </library>
+    </libraries>
+    <table name="COMPANY" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="false" jdbcType="12" />
+      <column name="CITY" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="STATE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="STREET" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="ZIP_CODE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <primary-key name="CONSTRAINT_6" columns="name" />
+      <index name="PRIMARY_KEY_6" unique="true" columns="NAME" />
+    </table>
+    <table name="DEPARTMENT" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" default="(NEXT VALUE FOR HR.SYSTEM_SEQUENCE_820C75CE_EBE0_44C3_A20C_5B46B09421AC)" />
+      <column name="NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <primary-key name="CONSTRAINT_4" columns="id" />
+      <index name="CONSTRAINT_INDEX_4" unique="true" columns="NAME" />
+      <index name="PRIMARY_KEY_4" unique="true" columns="ID" />
+    </table>
+    <table name="EMP" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="EMP_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" default="(NEXT VALUE FOR HR.SYSTEM_SEQUENCE_27817E74_9F52_4F24_BA33_F65B509E73E9)" />
+      <column name="COMM" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="DOB" sqlType="DATE" length="8" precision="0" nullable="true" jdbcType="91" />
+      <column name="TYPE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="PHONE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="PIC" sqlType="VARBINARY" length="2147483647" precision="0" nullable="true" jdbcType="-3" />
+      <column name="SAL" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
+      <column name="S_DATE" sqlType="DATE" length="8" precision="0" nullable="true" jdbcType="91" />
+      <column name="CITY" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="PROVINCE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="STREET" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="POSTAL_CODE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="DEPT_ID" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <column name="PSPACE_ID" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <primary-key name="CONSTRAINT_1" columns="emp_id" />
+      <foreign-key name="FK_EMP_DEPT_ID" columns="DEPT_ID" ref-table="DEPARTMENT" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="ID" />
+      <foreign-key name="FK_EMP_PSPACE_ID" columns="PSPACE_ID" ref-table="PARKING_SPACE" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="ID" />
+      <index name="PRIMARY_KEY_1" unique="true" columns="EMP_ID" />
+      <index name="FK_EMP_DEPT_ID_INDEX_1" unique="false" columns="DEPT_ID" />
+      <index name="FK_EMP_PSPACE_ID_INDEX_1" unique="false" columns="PSPACE_ID" />
+    </table>
+    <table name="EMP_PHONE" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="EMP_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" />
+      <column name="PHONE_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" />
+      <primary-key name="CONSTRAINT_63" columns="emp_id,phone_id" />
+      <foreign-key name="FK_EMP_PHONE_EMP_ID" columns="EMP_ID" ref-table="EMP" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="EMP_ID" />
+      <foreign-key name="FK_EMP_PHONE_PHONE_ID" columns="PHONE_ID" ref-table="PHONE" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="ID" />
+      <index name="PRIMARY_KEY_63" unique="true" columns="EMP_ID,PHONE_ID" />
+      <index name="FK_EMP_PHONE_PHONE_ID_INDEX_6" unique="false" columns="PHONE_ID" />
+    </table>
+    <table name="EMP_PROJ" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="EMP_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" />
+      <column name="PROJ_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" />
+      <primary-key name="CONSTRAINT_7" columns="emp_id,proj_id" />
+      <foreign-key name="FK_EMP_PROJ_EMP_ID" columns="EMP_ID" ref-table="EMP" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="EMP_ID" />
+      <foreign-key name="FK_EMP_PROJ_PROJ_ID" columns="PROJ_ID" ref-table="PROJECT" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="PROJ_ID" />
+      <index name="PRIMARY_KEY_7" unique="true" columns="EMP_ID,PROJ_ID" />
+      <index name="FK_EMP_PROJ_PROJ_ID_INDEX_7" unique="false" columns="PROJ_ID" />
+    </table>
+    <table name="NICKNAME" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="EMP_ID" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <column name="NICKNAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <foreign-key name="FK_NICKNAME_EMP_ID" columns="EMP_ID" ref-table="EMP" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="EMP_ID" />
+      <index name="FK_NICKNAME_EMP_ID_INDEX_3" unique="false" columns="EMP_ID" />
+    </table>
+    <table name="PARKING_SPACE" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" default="(NEXT VALUE FOR HR.SYSTEM_SEQUENCE_5DBDD59B_012B_4548_96F3_FE03559BBCD2)" />
+      <column name="LOCATION" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="LOT" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <primary-key name="CONSTRAINT_9" columns="id" />
+      <index name="PRIMARY_KEY_9" unique="true" columns="ID" />
+    </table>
+    <table name="PHONE" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" default="(NEXT VALUE FOR HR.SYSTEM_SEQUENCE_F0C60C32_E5E7_4147_9FEA_617502EDDF7F)" />
+      <column name="NUM" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <column name="TYPE" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <primary-key name="CONSTRAINT_48" columns="id" />
+      <index name="PRIMARY_KEY_48" unique="true" columns="ID" />
+    </table>
+    <table name="PRINTJOB" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="JOB_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" />
+      <column name="QUEUE_NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="PRINT_ORDER" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <primary-key name="CONSTRAINT_E" columns="job_id" />
+      <foreign-key name="FK_PRINTJOB_QUEUE_NAME" columns="QUEUE_NAME" ref-table="PRINTQUEUE" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="NAME" />
+      <index name="PRIMARY_KEY_E" unique="true" columns="JOB_ID" />
+      <index name="FK_PRINTJOB_QUEUE_NAME_INDEX_E" unique="false" columns="QUEUE_NAME" />
+    </table>
+    <table name="PRINTQUEUE" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="false" jdbcType="12" />
+      <primary-key name="CONSTRAINT_2" columns="name" />
+      <index name="PRIMARY_KEY_2" unique="true" columns="NAME" />
+    </table>
+    <table name="PROJECT" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="PROJ_ID" sqlType="INTEGER" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" default="(NEXT VALUE FOR HR.SYSTEM_SEQUENCE_F9BA408F_867F_48DD_B618_8F50CCE20E02)" />
+      <column name="NAME" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <primary-key name="CONSTRAINT_18" columns="proj_id" />
+      <index name="CONSTRAINT_INDEX_1" unique="true" columns="NAME" />
+      <index name="PRIMARY_KEY_18" unique="true" columns="PROJ_ID" />
+    </table>
+    <table name="VACATION" schema="HR" catalog="EMPLOYEE" type="TABLE">
+      <column name="DAYS_ABS" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <column name="STARTDATE" sqlType="VARCHAR" length="2147483647" precision="0" nullable="true" jdbcType="12" />
+      <column name="EMP_ID" sqlType="INTEGER" length="10" precision="0" nullable="true" jdbcType="4" />
+      <foreign-key name="FK_VACATION_EMP_ID" columns="EMP_ID" ref-table="EMP" ref-schema="HR" ref-catalog="EMPLOYEE" ref-columns="EMP_ID" />
+      <index name="FK_VACATION_EMP_ID_INDEX_C" unique="false" columns="EMP_ID" />
+    </table>
+  </data-source>
+</component>
