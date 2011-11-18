@@ -1,16 +1,16 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 
 /**
  *
@@ -26,7 +26,10 @@ public class Department implements Serializable {
     @Column(unique = true)
     private String name;
     
-    @OneToMany(mappedBy="department")
+    @ManyToMany
+    @JoinTable(name="DEPT_EMP",
+            joinColumns=@JoinColumn(name="DEPT_ID"),
+            inverseJoinColumns=@JoinColumn(name="EMP_ID"))
     @MapKeyColumn(name="CUB_ID")
     private Map<String, Employee> employeesByCubicle;
 
