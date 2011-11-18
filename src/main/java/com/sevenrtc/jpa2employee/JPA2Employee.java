@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumMap;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -40,6 +41,10 @@ public class JPA2Employee {
         Calendar startDate = Calendar.getInstance();
         startDate.set(2010, 8, 1);
         employee1.setStartDate(startDate.getTime());
+        EnumMap<PhoneType,String> phones = new EnumMap<PhoneType, String>(PhoneType.class);
+        phones.put(PhoneType.HOME, "1234567");
+        phones.put(PhoneType.MOBILE, "7654321");
+        employee1.setPhoneNumber(phones);
         em.persist(employee1);
 
         Employee employee2 = new Employee();

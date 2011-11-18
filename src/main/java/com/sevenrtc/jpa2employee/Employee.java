@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
@@ -25,12 +26,15 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
+import static com.sevenrtc.jpa2employee.util.FormattingUtils.formatarData;
 
 /**
  *
@@ -82,11 +86,7 @@ public class Employee implements Serializable {
             joinColumns = @JoinColumn(name = "EMP_ID"),
             inverseJoinColumns = @JoinColumn(name = "PROJ_ID"))
     private Collection<Project> projects;
-    @OneToMany
-    @JoinTable(name = "EMP_PHONE",
-            joinColumns = @JoinColumn(name = "EMP_ID"),
-            inverseJoinColumns = @JoinColumn(name = "PHONE_ID"))
-    private Collection<Phone> phones;
+
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name="state", column=@Column(name="PROVINCE")),
@@ -100,14 +100,21 @@ public class Employee implements Serializable {
             joinColumns=@JoinColumn(name="EMP_ID"))
     @AttributeOverride(name="daysTaken",
             column=@Column(name="DAYS_ABS"))
-    Collection<VacationEntry> vacationBookings;
+    private Collection<VacationEntry> vacationBookings;
     
     @ElementCollection
     @CollectionTable(
             name="NICKNAME",
             joinColumns=@JoinColumn(name="EMP_ID"))
     @Column(name="NICKNAME")
-    Collection<String> nickNames;
+    private Collection<String> nickNames;
+    
+    @ElementCollection
+    @CollectionTable(name="EMP_PHONE")
+    @MapKeyEnumerated(EnumType.STRING)
+    @MapKeyColumn(name="PHONE_TYPE")
+    @Column(name="PHONE_NUM")
+    private Map<PhoneType, String> phoneNumber;
     
     public int getId() {
         return id;
@@ -222,15 +229,6 @@ public class Employee implements Serializable {
     public void setProjects(Collection<Project> projects) {
         this.projects = projects;
     }
-    
-    public Collection<Phone> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(Collection<Phone> phones) {
-        this.phones = phones;
-    }
-    
 
     public Address getAddress() {
         return address;
@@ -255,6 +253,14 @@ public class Employee implements Serializable {
     public void setVacationBookings(Collection<VacationEntry> vacationBookings) {
         this.vacationBookings = vacationBookings;
     }
+
+    public Map<PhoneType, String> getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(Map<PhoneType, String> phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
     
     @Override
     public int hashCode() {
@@ -278,6 +284,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "Employee{" + "id=" + id + ", name=" + name + ", salary=" + salary + ", comments=" + comments + ", picture=" + picture + ", employeeType=" + employeeType + ", dob=" + (dob != null ? dob.getTime() : null) + ", startDate=" + startDate + ", phoneNum=" + phoneNum + ", address=" + address + '}';
+        return "Employee{" + "id=" + id + ", name=" + name + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", department=" + department + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
     }
+
 }
