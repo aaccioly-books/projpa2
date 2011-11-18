@@ -2,11 +2,13 @@ package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
@@ -25,8 +27,8 @@ public class Department implements Serializable {
     private String name;
     
     @OneToMany(mappedBy="department")
-    @OrderBy("name ASC")
-    private List<Employee> employees;
+    @MapKeyColumn(name="CUB_ID")
+    private Map<String, Employee> employeesByCubicle;
 
     public int getId() {
         return id;
@@ -43,13 +45,13 @@ public class Department implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    
-    public List<Employee> getEmployees() {
-        return employees;
+
+    public Map<String, Employee> getEmployeesByCubicle() {
+        return employeesByCubicle;
     }
 
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
+    public void setEmployeesByCubicle(Map<String, Employee> employeesByCubicle) {
+        this.employeesByCubicle = employeesByCubicle;
     }
 
     @Override
