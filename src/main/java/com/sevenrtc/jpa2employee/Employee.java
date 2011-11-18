@@ -54,7 +54,10 @@ public class Employee implements Serializable {
     @Column(name = "EMP_ID")
     private int id;
     
-    private String name;
+    @Column(name = "F_NAME")
+    private String firstName;
+    @Column(name = "L_NAME")
+    private String lastName;
     @Column(name = "SAL")
     private long salary;
     @Column(name = "COMM")
@@ -132,12 +135,20 @@ public class Employee implements Serializable {
         this.comments = comments;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public long getSalary() {
@@ -284,7 +295,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "Employee{" + "id=" + id + ", name=" + name + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + department + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
+        return "Employee{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + department + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
     }
 
 }
