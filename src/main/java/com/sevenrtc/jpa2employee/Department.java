@@ -7,10 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.MapKeyColumn;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -26,12 +24,9 @@ public class Department implements Serializable {
     @Column(unique = true)
     private String name;
     
-    @ManyToMany
-    @JoinTable(name="DEPT_EMP",
-            joinColumns=@JoinColumn(name="DEPT_ID"),
-            inverseJoinColumns=@JoinColumn(name="EMP_ID"))
-    @MapKeyColumn(name="CUB_ID")
-    private Map<String, Employee> employeesByCubicle;
+    @OneToMany(mappedBy = "department")
+    @MapKey(name = "id")
+    private Map<Integer, Employee> employees;
 
     public int getId() {
         return id;
@@ -49,12 +44,12 @@ public class Department implements Serializable {
         this.name = name;
     }
 
-    public Map<String, Employee> getEmployeesByCubicle() {
-        return employeesByCubicle;
+    public Map<Integer, Employee> getEmployees() {
+        return employees;
     }
 
-    public void setEmployeesByCubicle(Map<String, Employee> employeesByCubicle) {
-        this.employeesByCubicle = employeesByCubicle;
+    public void setEmployees(Map<Integer, Employee> employees) {
+        this.employees = employees;
     }
 
     @Override

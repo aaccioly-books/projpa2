@@ -1,6 +1,5 @@
 package com.sevenrtc.jpa2employee;
 
-import java.util.List;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
@@ -76,8 +75,9 @@ public class Employee implements Serializable {
     @Transient
     private String phoneNum;
     
-    @ManyToMany(mappedBy="employeesByCubicle")
-    private List<Department> departments;
+    @ManyToOne
+    @JoinColumn(name="DEPT_ID")
+    private Department department;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PSPACE_ID")
     private ParkingSpace parkingSpace;
@@ -206,12 +206,12 @@ public class Employee implements Serializable {
         }
     }
 
-    public List<Department> getDepartments() {
-        return departments;
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartments(List<Department> departments) {
-        this.departments = departments;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public ParkingSpace getParkingSpace() {
@@ -284,7 +284,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "Employee{" + "id=" + id + ", name=" + name + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + departments + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
+        return "Employee{" + "id=" + id + ", name=" + name + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + department + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
     }
 
 }
