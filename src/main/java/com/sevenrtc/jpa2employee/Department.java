@@ -25,8 +25,7 @@ public class Department implements Serializable {
     private String name;
     
     @OneToMany(mappedBy = "department")
-    @MapKey(name = "id")
-    private Map<Integer, Employee> employees;
+    private Map<EmployeeName, Employee> employees;
 
     public int getId() {
         return id;
@@ -44,11 +43,11 @@ public class Department implements Serializable {
         this.name = name;
     }
 
-    public Map<Integer, Employee> getEmployees() {
+    public Map<EmployeeName, Employee> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(Map<Integer, Employee> employees) {
+    public void setEmployees(Map<EmployeeName, Employee> employees) {
         this.employees = employees;
     }
 
