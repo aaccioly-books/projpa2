@@ -30,8 +30,8 @@ public class JPA2Employee {
 
         Employee employee1 = new Employee();
         employee1.setPhoneNum("1234567");
-        employee1.setFirstName("Anthony");
-        employee1.setLastName("Accioly");
+        
+        employee1.setEmployeeName(new EmployeeName("Anthony", "Accioly"));
         employee1.setSalary(1l);
         employee1.setComments("He is ok!");
         employee1.setPicture(Resources.toByteArray(JPA2Employee.class.getResource("/images/Manager-Cropped.jpg")));
@@ -71,7 +71,7 @@ public class JPA2Employee {
 
         em.getTransaction().commit();
 
-        List<Employee> employees = em.createQuery("select e from Employee e order by e.firstName DESC", Employee.class).
+        List<Employee> employees = em.createQuery("select e from Employee e order by e.employeeName.firstName DESC", Employee.class).
                 getResultList();
 
         for (Employee employee : employees) {
