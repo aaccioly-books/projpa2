@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Map;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,8 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
+import javax.persistence.MapKeyJoinColumn;
 
 /**
  *
@@ -40,6 +41,13 @@ public class Department implements Serializable {
         @Column(name = "EMP_LNAME"))
     })
     private Map<EmployeeName, Employee> employees;
+    
+    @ElementCollection
+    @CollectionTable(name="EMP_SENIORITY", 
+            joinColumns=@JoinColumn(name="DEPT_ID"))
+    @MapKeyJoinColumn(name="EMP_ID")
+    @Column(name="SENIORITY")
+    private Map<Employee, Integer> seniorities;
 
     public int getId() {
         return id;
@@ -63,6 +71,14 @@ public class Department implements Serializable {
 
     public void setEmployees(Map<EmployeeName, Employee> employees) {
         this.employees = employees;
+    }
+
+    public Map<Employee, Integer> getSeniorities() {
+        return seniorities;
+    }
+
+    public void setSeniorities(Map<Employee, Integer> seniorities) {
+        this.seniorities = seniorities;
     }
 
     @Override
