@@ -1,5 +1,6 @@
 package com.sevenrtc.jpa2employee;
 
+import java.util.List;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
@@ -54,10 +55,9 @@ public class Employee implements Serializable {
     @Column(name = "EMP_ID")
     private int id;
     
-    @Column(name = "F_NAME")
-    private String firstName;
-    @Column(name = "L_NAME")
-    private String lastName;
+    @Embedded
+    private EmployeeName employeeName;
+    
     @Column(name = "SAL")
     private long salary;
     @Column(name = "COMM")
@@ -78,9 +78,8 @@ public class Employee implements Serializable {
     @Transient
     private String phoneNum;
     
-    @ManyToOne
-    @JoinColumn(name="DEPT_ID")
-    private Department department;
+    @ManyToMany(mappedBy="employees")
+    private List<Department> departments;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PSPACE_ID")
     private ParkingSpace parkingSpace;
@@ -135,20 +134,12 @@ public class Employee implements Serializable {
         this.comments = comments;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public EmployeeName getEmployeeName() {
+        return employeeName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setEmployeeName(EmployeeName employeeName) {
+        this.employeeName = employeeName;
     }
 
     public long getSalary() {
@@ -217,12 +208,12 @@ public class Employee implements Serializable {
         }
     }
 
-    public Department getDepartment() {
-        return department;
+    public List<Department> getDepartments() {
+        return departments;
     }
 
-    public void setDepartment(Department department) {
-        this.department = department;
+    public void setDepartments(List<Department> departments) {
+        this.departments = departments;
     }
 
     public ParkingSpace getParkingSpace() {
@@ -295,7 +286,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "Employee{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + department + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
+        return "Employee{" + "id=" + id + ", employeeName=" + employeeName + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + departments + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
     }
 
 }

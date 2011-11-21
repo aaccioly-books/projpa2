@@ -11,10 +11,18 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class EmployeeName implements Serializable {
 
-    @Column(name = "F_NAME", insertable = false, updatable = false)
+    @Column(name = "F_NAME")
     private String firstName;
-    @Column(name = "L_NAME", insertable = false, updatable = false)
+    @Column(name = "L_NAME")
     private String lastName;
+
+    public EmployeeName() {
+    }
+
+    public EmployeeName(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     public String getFirstName() {
         return firstName;
