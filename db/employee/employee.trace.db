@@ -637,3 +637,21 @@ org.h2.jdbc.JdbcSQLException: The object is already closed [90007-155]
 	at org.netbeans.modules.db.explorer.node.ConnectionNode$2.run(ConnectionNode.java:313)
 	at org.openide.util.RequestProcessor$Task.run(RequestProcessor.java:1424)
 	at org.openide.util.RequestProcessor$Processor.run(RequestProcessor.java:1968)
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "DEPT_EMP" not found; SQL statement:
+ALTER TABLE DEPT_EMP DROP CONSTRAINT FK_DEPT_EMP_EMP_ID [42102-159]
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "DEPT_EMP" not found; SQL statement:
+ALTER TABLE DEPT_EMP DROP CONSTRAINT FK_DEPT_EMP_DEPT_ID [42102-159]
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "EMP_SENIORITY" not found; SQL statement:
+ALTER TABLE EMP_SENIORITY DROP CONSTRAINT FK_EMP_SENIORITY_DEPT_ID [42102-159]
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "EMP_SENIORITY" not found; SQL statement:
+ALTER TABLE EMP_SENIORITY DROP CONSTRAINT FK_EMP_SENIORITY_EMP_ID [42102-159]
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "DEPT_EMP" not found; SQL statement:
+DROP TABLE DEPT_EMP [42102-159]
+12-03 14:41:34 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "EMP_SENIORITY" not found; SQL statement:
+DROP TABLE EMP_SENIORITY [42102-159]
