@@ -42,7 +42,7 @@ public class JPA2Employee {
         Calendar startDate = Calendar.getInstance();
         startDate.set(2010, 8, 1);
         employee1.setStartDate(startDate.getTime());
-        EnumMap<PhoneType,String> phones = new EnumMap<PhoneType, String>(PhoneType.class);
+        EnumMap<PhoneType,String> phones = new EnumMap<>(PhoneType.class);
         phones.put(PhoneType.HOME, "1234567");
         phones.put(PhoneType.MOBILE, "7654321");
         employee1.setPhoneNumber(phones);
@@ -88,7 +88,7 @@ public class JPA2Employee {
         PrintQueue pq = new PrintQueue();
         pq.setName("Default");
         
-        List<PrintJob> jobs = new ArrayList<PrintJob>();
+        List<PrintJob> jobs = new ArrayList<>();
         PrintJob job1 = new PrintJob(1);
         PrintJob job2 = new PrintJob(2);
         PrintJob job3 = new PrintJob(3);
