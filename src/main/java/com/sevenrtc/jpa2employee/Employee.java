@@ -1,6 +1,5 @@
 package com.sevenrtc.jpa2employee;
 
-import java.util.List;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToOne;
@@ -36,6 +34,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import static com.sevenrtc.jpa2employee.util.FormattingUtils.formatarData;
+import java.util.*;
 
 /**
  *
