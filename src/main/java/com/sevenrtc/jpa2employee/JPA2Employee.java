@@ -2,12 +2,10 @@ package com.sevenrtc.jpa2employee;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import com.sevenrtc.jpa2employee.dto.EmpDept;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -28,6 +26,12 @@ public class JPA2Employee {
 
         em.getTransaction().begin();
 
+        Department it = new Department();
+        it.setName("IT");
+        em.persist(it);
+        
+        final List<Department> departments = Collections.singletonList(it);
+        
         Employee employee1 = new Employee();
         employee1.setPhoneNum("1234567");
         
@@ -46,10 +50,14 @@ public class JPA2Employee {
         phones.put(PhoneType.HOME, "1234567");
         phones.put(PhoneType.MOBILE, "7654321");
         employee1.setPhoneNumber(phones);
+        employee1.setDepartments(departments);
+        
         em.persist(employee1);
 
         Employee employee2 = new Employee();
+        employee2.setEmployeeName(new EmployeeName("Someone", "Else"));
         employee2.setPhoneNum("1231234567");
+        employee2.setDepartments(departments);
 
         em.persist(employee2);
 
@@ -67,7 +75,14 @@ public class JPA2Employee {
         company.setAddress(address);
         em.persist(company);
         
+        Map<EmployeeName, Employee> itEmployees = new HashMap<>();
+        itEmployees.put(employee1.getEmployeeName(), employee1);
+        itEmployees.put(employee2.getEmployeeName(), employee2);
+        it.setEmployees(itEmployees);
+        em.merge(it);
+        
         camposOrdenados(em);
+        clausulaNew(em);
 
         em.getTransaction().commit();
 
@@ -76,10 +91,11 @@ public class JPA2Employee {
 
         for (Employee employee : employees) {
             System.out.println(employee);
+            if (employee.getEmployeeName().equals(new EmployeeName("Anthony", "Accioly"))) {
+               File toWrite = new File(System.getProperty("user.home") + "/Desktop/teste.jpg");
+                Files.write(employee.getPicture(), toWrite);
+            }
         }
-
-        File toWrite = new File(System.getProperty("user.home") + "/Desktop/teste.jpg");
-        Files.write(employees.get(0).getPicture(), toWrite);
 
     }
     
@@ -114,5 +130,24 @@ public class JPA2Employee {
 
         pq = em.find(PrintQueue.class, "Default");
         System.out.println(pq);     
+    }
+    
+    public static void clausulaNew(EntityManager em) {
+        List<EmpDept> result = em.createQuery(
+                " SELECT"
+                + " NEW com.sevenrtc.jpa2employee.dto.EmpDept("
+                + " e.employeeName.lastName, d.name) "
+                + " FROM Employee e JOIN e.departments d"
+                + " GROUP BY e.id"
+                + " ORDER by e.employeeName.lastName",
+                EmpDept.class).getResultList();
+
+        int count = 0;
+        for (EmpDept menu : result) {
+            System.out.println(++count + ": "
+                    + menu.getEmployeeName() + ", "
+                    + menu.getDepartmentName());
+        }
+
     }
 }
