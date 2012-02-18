@@ -1,11 +1,14 @@
 package com.sevenrtc.jpa2employee;
 
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.sevenrtc.jpa2employee.dto.EmpDept;
-import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -38,7 +41,15 @@ public class JPA2Employee {
         employee1.setEmployeeName(new EmployeeName("Anthony", "Accioly"));
         employee1.setSalary(1l);
         employee1.setComments("He is ok!");
-        employee1.setPicture(Resources.toByteArray(JPA2Employee.class.getResource("/images/Manager-Cropped.jpg")));
+
+        try {
+            final Path p = Paths.get(JPA2Employee.class.getResource(
+                    "/images/Manager-Cropped.jpg").toURI());
+            employee1.setPicture(Files.readAllBytes(p));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(JPA2Employee.class.getName()).log(Level.SEVERE, null, ex);
+        }
+ 
         employee1.setEmployeeType(EmployeeType.CONTRACT_EMPLOYEE);
         Calendar dob = Calendar.getInstance();
         dob.set(1987, 6, 2);
@@ -92,8 +103,9 @@ public class JPA2Employee {
         for (Employee employee : employees) {
             System.out.println(employee);
             if (employee.getEmployeeName().equals(new EmployeeName("Anthony", "Accioly"))) {
-               File toWrite = new File(System.getProperty("user.home") + "/Desktop/teste.jpg");
-                Files.write(employee.getPicture(), toWrite);
+               final Path toWrite = Paths.get(System.getProperty("user.home"), 
+                       "Desktop", "teste.jpg");
+               Files.write(toWrite, employee.getPicture());
             }
         }
 
