@@ -80,6 +80,14 @@ public class JPA2Employee {
 
         employee1.setAddress(address);
         em.merge(employee1);
+        
+        Employee employee3 = new Employee();
+        employee3.setEmployeeName(new EmployeeName("Flavio", "Antunes"));
+        employee3.setPhoneNum("12345");
+        em.persist(employee3);
+        
+        employee1.setManager(employee3);
+        em.merge(employee1);
 
         Company company = new Company();
         company.setName("7RTC");
@@ -90,7 +98,7 @@ public class JPA2Employee {
         p1.setName("Telefonica");
         List<Employee> projectEmployees = new ArrayList<>();
         projectEmployees.add(employee1);
-        projectEmployees.add(employee2);
+        projectEmployees.add(employee3);
         p1.setEmployees(projectEmployees);
         em.persist(p1);
         
@@ -100,13 +108,13 @@ public class JPA2Employee {
         
         List<Project> empProjects = Collections.singletonList(p1);
         employee1.setProjects(empProjects);
-        employee2.setProjects(empProjects);
+        employee3.setProjects(empProjects);
         em.merge(p1);
-        em.merge(p2);
         
         Map<EmployeeName, Employee> itEmployees = new HashMap<>();
         itEmployees.put(employee1.getEmployeeName(), employee1);
         itEmployees.put(employee2.getEmployeeName(), employee2);
+        itEmployees.put(employee3.getEmployeeName(), employee3);
         it.setEmployees(itEmployees);
         em.merge(it);
                 

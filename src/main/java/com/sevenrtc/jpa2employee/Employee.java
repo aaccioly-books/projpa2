@@ -35,6 +35,8 @@ import javax.persistence.Transient;
 
 import static com.sevenrtc.jpa2employee.util.FormattingUtils.formatarData;
 import java.util.*;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -77,11 +79,19 @@ public class Employee implements Serializable {
     @Transient
     private String phoneNum;
     
+    @ManyToOne
+    @JoinColumn(name = "MANAGER_ID")
+    private Employee manager;
+    
+    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
+    private Collection<Employee> directs; 
+    
     @ManyToMany(mappedBy="employees")
     private List<Department> departments;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PSPACE_ID")
     private ParkingSpace parkingSpace;
+    
     @ManyToMany
     @JoinTable(name = "EMP_PROJ",
             joinColumns = @JoinColumn(name = "EMP_ID"),
@@ -205,6 +215,22 @@ public class Employee implements Serializable {
         } else {
             phoneNum = num;
         }
+    }
+
+    public Collection<Employee> getDirects() {
+        return directs;
+    }
+
+    public void setDirects(Collection<Employee> directs) {
+        this.directs = directs;
+    }
+
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
     }
 
     public List<Department> getDepartments() {
