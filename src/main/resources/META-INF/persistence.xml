@@ -21,4 +21,23 @@
       <property name="eclipselink.logging.level" value="FINE"/>
     </properties>
   </persistence-unit>
+  <persistence-unit name="JPA2EmployeePUPermanente" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>com.sevenrtc.jpa2employee.Employee</class>
+    <class>com.sevenrtc.jpa2employee.Phone</class>
+    <class>com.sevenrtc.jpa2employee.Department</class>
+    <class>com.sevenrtc.jpa2employee.Address</class>
+    <class>com.sevenrtc.jpa2employee.ParkingSpace</class>
+    <class>com.sevenrtc.jpa2employee.VacationEntry</class>
+    <class>com.sevenrtc.jpa2employee.Project</class>
+    <class>com.sevenrtc.jpa2employee.Company</class>
+    <class>com.sevenrtc.jpa2employee.PrintJob</class>
+    <class>com.sevenrtc.jpa2employee.PrintQueue</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:./db/employee/employee;AUTO_SERVER=TRUE;SCHEMA=HR"/>
+      <property name="javax.persistence.jdbc.password" value="teste"/>
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.user" value="teste"/>
+    </properties>
+  </persistence-unit>
 </persistence>
