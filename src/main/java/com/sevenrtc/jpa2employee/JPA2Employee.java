@@ -86,12 +86,30 @@ public class JPA2Employee {
         company.setAddress(address);
         em.persist(company);
         
+        Project p1 = new DesignProject();
+        p1.setName("Telefonica");
+        List<Employee> projectEmployees = new ArrayList<>();
+        projectEmployees.add(employee1);
+        projectEmployees.add(employee2);
+        p1.setEmployees(projectEmployees);
+        em.persist(p1);
+        
+        Project p2 = new QualityProject();
+        p2.setName("Pernambucanas");
+        em.persist(p2);
+        
+        List<Project> empProjects = Collections.singletonList(p1);
+        employee1.setProjects(empProjects);
+        employee2.setProjects(empProjects);
+        em.merge(p1);
+        em.merge(p2);
+        
         Map<EmployeeName, Employee> itEmployees = new HashMap<>();
         itEmployees.put(employee1.getEmployeeName(), employee1);
         itEmployees.put(employee2.getEmployeeName(), employee2);
         it.setEmployees(itEmployees);
         em.merge(it);
-        
+                
         camposOrdenados(em);
         clausulaNew(em);
 

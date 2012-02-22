@@ -9,6 +9,8 @@
     <class>com.sevenrtc.jpa2employee.ParkingSpace</class>
     <class>com.sevenrtc.jpa2employee.VacationEntry</class>
     <class>com.sevenrtc.jpa2employee.Project</class>
+    <class>com.sevenrtc.jpa2employee.QualityProject</class>
+    <class>com.sevenrtc.jpa2employee.DesignProject</class>
     <class>com.sevenrtc.jpa2employee.Company</class>
     <class>com.sevenrtc.jpa2employee.PrintJob</class>
     <class>com.sevenrtc.jpa2employee.PrintQueue</class>
@@ -30,6 +32,8 @@
     <class>com.sevenrtc.jpa2employee.ParkingSpace</class>
     <class>com.sevenrtc.jpa2employee.VacationEntry</class>
     <class>com.sevenrtc.jpa2employee.Project</class>
+    <class>com.sevenrtc.jpa2employee.QualityProject</class>
+    <class>com.sevenrtc.jpa2employee.DesignProject</class>
     <class>com.sevenrtc.jpa2employee.Company</class>
     <class>com.sevenrtc.jpa2employee.PrintJob</class>
     <class>com.sevenrtc.jpa2employee.PrintQueue</class>
@@ -38,6 +42,7 @@
       <property name="javax.persistence.jdbc.password" value="teste"/>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
       <property name="javax.persistence.jdbc.user" value="teste"/>
+      <property name="eclipselink.logging.level" value="FINE"/>
     </properties>
   </persistence-unit>
 </persistence>
