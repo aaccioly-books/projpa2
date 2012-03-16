@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 /**
  *
@@ -120,6 +123,8 @@ public class JPA2Employee {
                 
         camposOrdenados(em);
         clausulaNew(em);
+        
+        criterias(em);
 
         em.getTransaction().commit();
 
@@ -187,5 +192,19 @@ public class JPA2Employee {
                     + menu.getDepartmentName());
         }
 
+    }
+    
+    public static void criterias(EntityManager em) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+        Root<Employee> emp = c.from(Employee.class);
+        
+        c.select(emp).distinct(true)
+                .where(cb.equal(
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName), 
+                "Accioly"));
+
+        Employee employee = em.createQuery(c).getSingleResult();
+        System.out.println(employee);
     }
 }
