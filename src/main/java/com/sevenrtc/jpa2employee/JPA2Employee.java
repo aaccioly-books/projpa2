@@ -12,9 +12,8 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 
 /**
  *
@@ -120,23 +119,25 @@ public class JPA2Employee {
         itEmployees.put(employee3.getEmployeeName(), employee3);
         it.setEmployees(itEmployees);
         em.merge(it);
-                
+        
+        em.getTransaction().commit();
+        
+        // Consultas
+        
         camposOrdenados(em);
         clausulaNew(em);
+
+        System.out.println("\nEmpregados ordenados por nome: ");
+        List<Employee> employees = em.createQuery("select e from Employee e order by e.employeeName.firstName DESC", Employee.class).getResultList();
+        print(employees, "\t", "\n");
         
         criterias(em);
-
-        em.getTransaction().commit();
-
-        List<Employee> employees = em.createQuery("select e from Employee e order by e.employeeName.firstName DESC", Employee.class).
-                getResultList();
-
+        
         for (Employee employee : employees) {
-            System.out.println(employee);
             if (employee.getEmployeeName().equals(new EmployeeName("Anthony", "Accioly"))) {
-               final Path toWrite = Paths.get(System.getProperty("user.home"), 
-                       "Desktop", "teste.jpg");
-               Files.write(toWrite, employee.getPicture());
+                final Path toWrite = Paths.get(System.getProperty("user.home"),
+                        "Desktop", "teste.jpg");
+                Files.write(toWrite, employee.getPicture());
             }
         }
 
@@ -144,6 +145,8 @@ public class JPA2Employee {
     
     private static void camposOrdenados(EntityManager em) {
         
+        System.out.println("\nFila de impressão ordenada: \n");
+                
         PrintQueue pq = new PrintQueue();
         pq.setName("Default");
         
@@ -161,21 +164,27 @@ public class JPA2Employee {
         job3.setQueue(pq);
         pq.setJobs(jobs);
         
+        em.getTransaction().begin();
         em.persist(pq);
-        System.out.println(pq);
+        em.getTransaction().commit();
         
+        System.out.printf("\tFila Inical: %s\n", pq);
+        
+        em.getTransaction().begin();  
         // swap job 2 with job 1
         job2 = pq.getJobs().remove(1);
-        System.out.println(job2);
+        System.out.printf("\tSegundo job: %s\n", job2);
         pq.getJobs().add(0, job2);
         
         em.persist(pq);
+        em.getTransaction().commit();
 
         pq = em.find(PrintQueue.class, "Default");
-        System.out.println(pq);     
+        System.out.printf("\tFila após o swap: %s\n", pq);
     }
     
     public static void clausulaNew(EntityManager em) {
+        System.out.println("\nEmpregados e departamentos:");
         List<EmpDept> result = em.createQuery(
                 " SELECT"
                 + " NEW com.sevenrtc.jpa2employee.dto.EmpDept("
@@ -186,15 +195,21 @@ public class JPA2Employee {
                 EmpDept.class).getResultList();
 
         int count = 0;
-        for (EmpDept menu : result) {
-            System.out.println(++count + ": "
-                    + menu.getEmployeeName() + ", "
-                    + menu.getDepartmentName());
+        for (EmpDept empDept : result) {
+            System.out.printf("\t%d: %s, %s\n", 
+                    ++count, 
+                    empDept.getEmployeeName(),
+                    empDept.getDepartmentName());
         }
 
     }
     
     public static void criterias(EntityManager em) {
+        
+        int criteriaCounter = 0;
+        
+        System.out.println("\n-------------\n *Criterias*\n-------------\n");
+        
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
         Root<Employee> emp = c.from(Employee.class);
@@ -204,7 +219,93 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName), 
                 "Accioly"));
 
+        
+        
+        System.out.printf("Criteria %d:\n", ++criteriaCounter);
         Employee employee = em.createQuery(c).getSingleResult();
-        System.out.println(employee);
+        System.out.printf("\t%s\n", employee);
+        
+        List<Employee> employees = null;
+        
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        employees = findEmployees(em, "Anthony", null, null, null);
+        print(employees, "\t", "\n");
+        
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        employees = findEmployees(em, null , "IT", null, null);
+        print(employees, "\t", "\n");
+        
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        employees = findEmployees(em, null , null, "Telefonica", null);
+        print(employees, "\t", "\n");
+        
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        employees = findEmployees(em, null , null, null, "São Paulo");
+        print(employees, "\t", "\n");
+        
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        employees = findEmployees(em, "Anthony" , "IT", "Telefonica", "São Paulo");
+        print(employees, "\t", "\n");
+          
+        System.out.println("\n-------------\n");
     }
+    
+    public static List<Employee> findEmployees(EntityManager em, String name, String deptName,
+            String projectName, String city) {
+        
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+        Root<Employee> emp = c.from(Employee.class);
+
+        c.select(emp);
+        c.distinct(true);
+        
+        Join<Employee, Project> project = emp.join(
+                Employee_.projects, JoinType.LEFT);
+        Join<Employee, Department> department = emp.join(
+                Employee_.departments, JoinType.LEFT);
+        
+        List<Predicate> criteria = new ArrayList<>();
+        
+        if (name != null) {
+            ParameterExpression<String> p = cb.parameter(String.class, "name");
+            criteria.add(cb.equal(emp.get(Employee_.employeeName)
+                    .get(EmployeeName_.firstName), p));
+        }     
+        if (deptName != null) {
+            ParameterExpression<String> p = cb.parameter(String.class, "dept");
+            criteria.add(cb.equal(department.get(Department_.name), p));
+        }
+        if (projectName != null) {
+            ParameterExpression<String> p = cb.parameter(String.class, 
+                    "project");
+            criteria.add(cb.equal(project.get(Project_.name), p));
+        }     
+        if (city != null) {
+            ParameterExpression<String> p = cb.parameter(String.class, "city");
+            criteria.add(cb.equal(emp.get(Employee_.address).get(Address_.city), 
+                    p));
+        }
+        
+        switch(criteria.size()) {
+            case 0: throw new RuntimeException("no criteria"); 
+            case 1: c.where(criteria.get(0)); break;
+            default: c.where(criteria.toArray(new Predicate[0]));    
+        }
+        
+        TypedQuery<Employee> q = em.createQuery(c);
+        if (name != null) { q.setParameter("name", name);}
+        if (deptName != null) { q.setParameter("dept", deptName);}
+        if (projectName != null) { q.setParameter("project", projectName);}
+        if (city != null) { q.setParameter("city", city);}
+
+        return q.getResultList();
+    }
+    
+    public static void print(Collection<?> col, String prefix, String suffix) {
+        for (Object elem : col) {
+            System.out.printf("%s%s%s", prefix, elem.toString(), suffix);
+        }
+    }
+
 }
