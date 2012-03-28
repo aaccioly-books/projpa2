@@ -335,6 +335,18 @@ public class JPA2Employee {
         ).groupBy(emp.get(Employee_.id), phones.key());        
         empTuples = em.createQuery(t).getResultList();
         printCollectionOfTuples(empTuples, "\t", "\n");
+        
+        // Join Fetch
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        c = cb.createQuery(Employee.class);
+        emp = c.from(Employee.class);
+        Fetch<Employee, String> fetchPhones = 
+                emp.fetch(Employee_.phoneNumber, JoinType.LEFT);
+        c.select(emp)
+                .distinct(true)
+                .orderBy(cb.asc(emp.get(Employee_.id)));       
+        employees = em.createQuery(c).getResultList();
+        print(employees, "\t", "\n");
           
         System.out.println("\n-------------\n");
     }
