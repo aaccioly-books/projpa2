@@ -245,7 +245,7 @@ public class JPA2Employee {
         print(employees, "\t", "\n");
         
         // Multiplos selects
-        List<Tuple> employeesTuple;
+        List<Tuple> empTuples;
         
         // Tupla com ID e nome
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -258,8 +258,8 @@ public class JPA2Employee {
                     .get(EmployeeName_.firstName).alias("name")
                 )
         ).groupBy(emp.get(Employee_.id));
-        employeesTuple = em.createQuery(t).getResultList();
-        printCollectionOfTuples(employeesTuple, "\t", "\n");
+        empTuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(empTuples, "\t", "\n");
         
          // Mesma query com multiselect
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -270,10 +270,10 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName)
                     .get(EmployeeName_.firstName).alias("name")
         ).groupBy(emp.get(Employee_.id));
-        employeesTuple = em.createQuery(t).getResultList();
-        printCollectionOfTuples(employeesTuple, "\t", "\n");
+        empTuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(empTuples, "\t", "\n");
         
-        List<Object[]> employeesObjects;
+        List<Object[]> empObjects;
         
         // Mesma query com multiselect para Object[]
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -284,10 +284,10 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName)
                     .get(EmployeeName_.firstName).alias("name")
         ).groupBy(emp.get(Employee_.id));
-        employeesObjects = em.createQuery(o).getResultList();
-        printCollectionOfObjects(employeesObjects, "\t", "\n");
+        empObjects = em.createQuery(o).getResultList();
+        printCollectionOfObjects(empObjects, "\t", "\n");
         
-        List<EmpDept> emptDepts;
+        List<EmpDept> empDepts;
         
         // Query para expressao por construtor
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -300,8 +300,8 @@ public class JPA2Employee {
         .groupBy(emp.get(Employee_.id))
         .orderBy(cb.asc(
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName)));
-        emptDepts = em.createQuery(e).getResultList();
-        print(emptDepts, "\t", "\n");
+        empDepts = em.createQuery(e).getResultList();
+        print(empDepts, "\t", "\n");
         
         // Mesma query com multiselect
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -314,8 +314,27 @@ public class JPA2Employee {
         .groupBy(emp.get(Employee_.id))
         .orderBy(cb.asc(
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName)));
-        emptDepts = em.createQuery(e).getResultList();
-        print(emptDepts, "\t", "\n");
+        empDepts = em.createQuery(e).getResultList();
+        print(empDepts, "\t", "\n");
+        
+        // Query para mapas
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        emp = t.from(Employee.class);
+        MapJoin<Employee, PhoneType, String> phones = 
+                emp.join(Employee_.phoneNumber);
+                //emp.joinMap("phoneNumber"); // API não tipada -> joinMap
+        t.multiselect(
+                emp.get(Employee_.id).alias("id"),
+                emp.get(Employee_.employeeName).get(EmployeeName_.firstName)
+                    .alias("nome"),
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName)
+                    .alias("sobrenome"),
+                phones.key().alias("tipo"),
+                phones.value().alias("numero")
+        ).groupBy(emp.get(Employee_.id), phones.key());        
+        empTuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(empTuples, "\t", "\n");
           
         System.out.println("\n-------------\n");
     }
