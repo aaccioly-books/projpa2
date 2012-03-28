@@ -9,10 +9,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.*;
 
 /**
@@ -225,7 +222,7 @@ public class JPA2Employee {
         Employee employee = em.createQuery(c).getSingleResult();
         System.out.printf("\t%s\n", employee);
         
-        List<Employee> employees = null;
+        List<Employee> employees;
         
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
         employees = findEmployees(em, "Anthony", null, null, null);
@@ -246,6 +243,79 @@ public class JPA2Employee {
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
         employees = findEmployees(em, "Anthony" , "IT", "Telefonica", "São Paulo");
         print(employees, "\t", "\n");
+        
+        // Multiplos selects
+        List<Tuple> employeesTuple;
+        
+        // Tupla com ID e nome
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        CriteriaQuery<Tuple> t = cb.createTupleQuery();
+        emp = t.from(Employee.class);
+        t.distinct(true).select(
+                cb.tuple(
+                emp.get(Employee_.id).alias("id"),
+                emp.get(Employee_.employeeName)
+                    .get(EmployeeName_.firstName).alias("name")
+                )
+        ).groupBy(emp.get(Employee_.id));
+        employeesTuple = em.createQuery(t).getResultList();
+        printCollectionOfTuples(employeesTuple, "\t", "\n");
+        
+         // Mesma query com multiselect
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        emp = t.from(Employee.class);
+        t.distinct(true).multiselect(
+                emp.get(Employee_.id).alias("id"),
+                emp.get(Employee_.employeeName)
+                    .get(EmployeeName_.firstName).alias("name")
+        ).groupBy(emp.get(Employee_.id));
+        employeesTuple = em.createQuery(t).getResultList();
+        printCollectionOfTuples(employeesTuple, "\t", "\n");
+        
+        List<Object[]> employeesObjects;
+        
+        // Mesma query com multiselect para Object[]
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        CriteriaQuery<Object[]> o = cb.createQuery(Object[].class);
+        emp = o.from(Employee.class);
+        o.distinct(true).multiselect(
+                emp.get(Employee_.id).alias("id"),
+                emp.get(Employee_.employeeName)
+                    .get(EmployeeName_.firstName).alias("name")
+        ).groupBy(emp.get(Employee_.id));
+        employeesObjects = em.createQuery(o).getResultList();
+        printCollectionOfObjects(employeesObjects, "\t", "\n");
+        
+        List<EmpDept> emptDepts;
+        
+        // Query para expressao por construtor
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        CriteriaQuery<EmpDept> e = cb.createQuery(EmpDept.class);
+        emp = e.from(Employee.class);
+        Join<Employee, Department> dep = emp.join(Employee_.departments);
+        e.select(cb.construct(EmpDept.class, 
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName), 
+                dep.get(Department_.name)))
+        .groupBy(emp.get(Employee_.id))
+        .orderBy(cb.asc(
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName)));
+        emptDepts = em.createQuery(e).getResultList();
+        print(emptDepts, "\t", "\n");
+        
+        // Mesma query com multiselect
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        e = cb.createQuery(EmpDept.class);
+        emp = e.from(Employee.class);
+        dep = emp.join(Employee_.departments);
+        e.multiselect( 
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName), 
+                dep.get(Department_.name))
+        .groupBy(emp.get(Employee_.id))
+        .orderBy(cb.asc(
+                emp.get(Employee_.employeeName).get(EmployeeName_.lastName)));
+        emptDepts = em.createQuery(e).getResultList();
+        print(emptDepts, "\t", "\n");
           
         System.out.println("\n-------------\n");
     }
@@ -305,6 +375,30 @@ public class JPA2Employee {
     public static void print(Collection<?> col, String prefix, String suffix) {
         for (Object elem : col) {
             System.out.printf("%s%s%s", prefix, elem.toString(), suffix);
+        }
+    }
+    
+    public static void printCollectionOfObjects(Collection<Object[]> col, 
+            String prefix, String suffix) {
+        for (Object[] elem : col) {
+            System.out.printf("%s%s%s", prefix, Arrays.toString(elem), suffix);
+        }
+    }
+    
+    public static void printCollectionOfTuples(Collection<Tuple> col, 
+            String prefix, String suffix) {
+        for (Tuple tuple : col) {
+            System.out.print(prefix + "<");
+            final Iterator<TupleElement<?>> it = tuple.getElements().iterator();
+            while (it.hasNext()) {
+                TupleElement<? extends Object> tupleElement = it.next();
+                System.out.printf("%s = %s", tupleElement.getAlias(), 
+                        tuple.get(tupleElement));
+                if (it.hasNext()) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.print(">" + suffix);          
         }
     }
 
