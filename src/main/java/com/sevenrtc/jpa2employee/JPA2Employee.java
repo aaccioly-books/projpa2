@@ -366,33 +366,40 @@ public class JPA2Employee {
         Join<Employee, Department> department = emp.join(
                 Employee_.departments, JoinType.LEFT);
         
-        List<Predicate> criteria = new ArrayList<>();
+        Predicate criteria = cb.conjunction();
+        int criteriaCount = 0;
         
         if (name != null) {
             ParameterExpression<String> p = cb.parameter(String.class, "name");
-            criteria.add(cb.equal(emp.get(Employee_.employeeName)
+            criteria = cb.and(criteria, cb.equal(emp.get(Employee_.employeeName)
                     .get(EmployeeName_.firstName), p));
+            criteriaCount++;
         }     
         if (deptName != null) {
             ParameterExpression<String> p = cb.parameter(String.class, "dept");
-            criteria.add(cb.equal(department.get(Department_.name), p));
+            criteria = cb.and(criteria, 
+                    cb.equal(department.get(Department_.name), p));
+            criteriaCount++;
         }
         if (projectName != null) {
             ParameterExpression<String> p = cb.parameter(String.class, 
                     "project");
-            criteria.add(cb.equal(project.get(Project_.name), p));
+            criteria = cb.and(criteria, 
+                    cb.equal(project.get(Project_.name), p));
+            criteriaCount++;
         }     
         if (city != null) {
             ParameterExpression<String> p = cb.parameter(String.class, "city");
-            criteria.add(cb.equal(emp.get(Employee_.address).get(Address_.city), 
-                    p));
+            criteria = cb.and(criteria, 
+                    cb.equal(emp.get(Employee_.address).get(Address_.city), p));
+            criteriaCount++;
         }
         
-        switch(criteria.size()) {
-            case 0: throw new RuntimeException("no criteria"); 
-            case 1: c.where(criteria.get(0)); break;
-            default: c.where(criteria.toArray(new Predicate[0]));    
+        if (criteriaCount == 0) {
+            throw new RuntimeException("no criteria");
         }
+        
+        c.where(criteria);
         
         TypedQuery<Employee> q = em.createQuery(c);
         if (name != null) { q.setParameter("name", name);}
