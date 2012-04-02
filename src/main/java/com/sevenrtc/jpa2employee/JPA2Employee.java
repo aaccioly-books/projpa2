@@ -129,6 +129,7 @@ public class JPA2Employee {
         print(employees, "\t", "\n");
         
         criterias(em);
+        criteriaSubqueries(em);
         
         for (Employee employee : employees) {
             if (employee.getEmployeeName().equals(new EmployeeName("Anthony", "Accioly"))) {
@@ -349,6 +350,174 @@ public class JPA2Employee {
         print(employees, "\t", "\n");
           
         System.out.println("\n-------------\n");
+    }
+    
+    public static void criteriaSubqueries(EntityManager em) {
+        
+        int subqueryCounter  = 0;
+        
+        System.out.println("\n-------------\n*Criteria API Subqueries*\n-------------\n");
+        
+        // Nao correlacionada:
+        
+        /*
+         * Equivalente a consulta: 
+         * 
+         *    SELECT e 
+         *    FROM Employee e 
+         *    WHERE e.id IN (SELECT emp.id 
+         *                     FROM Project p JOIN p.employees emp 
+         *                    WHERE p.name = :projectName)
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+            Root<Employee> emp = c.from(Employee.class);
+
+            // Cria subquery nao relacionada
+            Subquery<Integer> sq = c.subquery(Integer.class);
+            // Root da subquery
+            Root<Project> project = sq.from(Project.class);
+            // Join na subquery
+            Join<Project, Employee> sqEmp =
+                    project.join(Project_.employees);
+            // Where da subquery
+            sq.select(sqEmp.get(Employee_.id)).where(
+                    cb.equal(project.get(Project_.name),
+                    cb.parameter(String.class, "projectName")));
+            // Where com in na query 
+            c.select(emp).where(
+                    cb.in(emp.get(Employee_.id)).value(sq));
+
+            TypedQuery<Employee> q = em.createQuery(c);
+            q.setParameter("projectName", "Telefonica");
+            List<Employee> employeess = q.getResultList();
+            print(employeess, "\t", "\n");
+        }
+        
+        // Correlacionada:
+        
+        /*
+         * Equivalente a consulta:
+         *
+         *    SELECT e 
+         *    FROM Employee e 
+         *    WHERE EXISTS (SELECT p 
+         *                    FROM Project p JOIN p.employees emp 
+         *                   WHERE emp = e AND
+         *                      p.name = :name)
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+            Root<Employee> emp = c.from(Employee.class);
+
+
+            Subquery<Project> sq = c.subquery(Project.class);
+            Root<Project> project = sq.from(Project.class);
+            Join<Project, Employee> sqEmp =
+                    project.join(Project_.employees);
+
+            sq.select(project).where(
+                    // correlaciona project.employees com a root
+                    cb.equal(sqEmp, emp), 
+                    cb.equal(project.get(Project_.name),
+                    cb.parameter(String.class, "projectName")));
+            // Where com exists na query 
+            c.select(emp).where(cb.exists(sq));
+
+            TypedQuery<Employee> q = em.createQuery(c);
+            q.setParameter("projectName", "Telefonica");
+            List<Employee> employeess = q.getResultList();
+            print(employeess, "\t", "\n");
+        }
+        
+        /*
+         * Correlacionada + referencia para a entidade raiz da outer query na
+         * subquery
+         */
+        
+        /*
+         * Equivalente a consulta:
+         *
+         *    SELECT e 
+         *    FROM Employee e 
+         *    WHERE EXISTS (SELECT p 
+         *                    FROM emp.projects p 
+         *                   WHERE p.name = :name)
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+            Root<Employee> emp = c.from(Employee.class);
+
+
+            Subquery<Project> sq = c.subquery(Project.class);
+            // Equivalente a (SELECT p FROM emp.projects)
+            Root<Employee> sqEmp = sq.correlate(emp);
+            Join<Employee, Project> project =
+                    sqEmp.join(Employee_.projects);
+
+            sq.select(project).where(
+                    cb.equal(project.get(Project_.name),
+                    cb.parameter(String.class, "projectName")));
+            // Where com exists na query 
+            c.select(emp).where(cb.exists(sq));
+
+            TypedQuery<Employee> q = em.createQuery(c);
+            q.setParameter("projectName", "Telefonica");
+            List<Employee> employeess = q.getResultList();
+            print(employeess, "\t", "\n");
+        }
+        
+        // Correlacionada + join da outer query referenciado na subquery
+        
+        /*
+         * Equivalente a consulta:
+         *
+         *     SELECT p FROM 
+         *     Project p JOIN p.employees e 
+         *     WHERE TYPE(p) = DesignProject AND 
+         *           e.directs IS NOT EMPTY AND
+         *           (SELECT AVG(d.salary)
+         *            FROM e.directs d) >= :value   
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Project> c = cb.createQuery(Project.class);
+            Root<Project> project = c.from(Project.class);
+            Join<Project, Employee> emp = project.join(Project_.employees);
+
+            Subquery<Double> sq = c.subquery(Double.class);
+            // Equivalente a (FROM e.directs)
+            Join<Project, Employee> sqEmp = sq.correlate(emp);
+            Join<Employee, Employee> directs  = sqEmp.join(Employee_.directs);
+            // SELECT AVG(d.salary)
+            sq.select(cb.avg(directs.get(Employee_.salary)));
+
+            c.select(project).where(
+                    // TYPE(p) = DesignProject
+                    cb.equal(project.type(), DesignProject.class),
+                    // e.directs IS NOT EMPTY AND
+                    cb.isNotEmpty(emp.get(Employee_.directs)),
+                    // AVG(d.salary) >= :value
+                    cb.ge(sq, cb.parameter(Double.class, "value")));
+
+            TypedQuery<Project> q = em.createQuery(c);
+            q.setParameter("value", 1.0);
+            List<Project> projects = q.getResultList();
+            print(projects, "\t", "\n");
+        }
+        
+        System.out.println("\n-------------\n");        
     }
     
     public static List<Employee> findEmployees(EntityManager em, String name, String deptName,

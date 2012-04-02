@@ -68,7 +68,7 @@ public abstract class Project implements Serializable {
 
     @Override
     public String toString() {
-        return "jpa2employee.Project[ id=" + id + " ]";
+        return "Project{" + "id=" + id + ", name=" + name + '}';
     }
-    
+
 }
