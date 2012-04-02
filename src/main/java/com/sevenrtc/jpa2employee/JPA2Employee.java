@@ -370,28 +370,27 @@ public class JPA2Employee {
         int criteriaCount = 0;
         
         if (name != null) {
-            ParameterExpression<String> p = cb.parameter(String.class, "name");
             criteria = cb.and(criteria, cb.equal(emp.get(Employee_.employeeName)
-                    .get(EmployeeName_.firstName), p));
+                    .get(EmployeeName_.firstName),
+                    cb.parameter(String.class, "name")));
             criteriaCount++;
         }     
         if (deptName != null) {
-            ParameterExpression<String> p = cb.parameter(String.class, "dept");
             criteria = cb.and(criteria, 
-                    cb.equal(department.get(Department_.name), p));
+                    cb.equal(department.get(Department_.name), 
+                    cb.parameter(String.class, "dept")));
             criteriaCount++;
         }
         if (projectName != null) {
-            ParameterExpression<String> p = cb.parameter(String.class, 
-                    "project");
             criteria = cb.and(criteria, 
-                    cb.equal(project.get(Project_.name), p));
+                    cb.equal(project.get(Project_.name), 
+                    cb.parameter(String.class, "project")));
             criteriaCount++;
         }     
         if (city != null) {
-            ParameterExpression<String> p = cb.parameter(String.class, "city");
             criteria = cb.and(criteria, 
-                    cb.equal(emp.get(Employee_.address).get(Address_.city), p));
+                    cb.equal(emp.get(Employee_.address).get(Address_.city), 
+                    cb.parameter(String.class, "city")));
             criteriaCount++;
         }
         
