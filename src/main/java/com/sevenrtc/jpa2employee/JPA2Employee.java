@@ -517,6 +517,51 @@ public class JPA2Employee {
             print(projects, "\t", "\n");
         }
         
+        // Não correlacionada + like + upper
+        
+        /*
+         * Equivalente a consulta:
+         *
+         *     SELECT e 
+         *     FROM Employee e JOIN e.departments ed
+         *     WHERE ed.id IN
+         *     (
+         *       SELECT DISTINCT d.id
+         *       FROM Department d JOIN d.employees de
+         *       JOIN de.projects p
+         *       WHERE UPPER(p.name) LIKE UPPER(:projectName)
+         *     )        
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+            Root<Employee> emp = c.from(Employee.class);
+            Join<Employee, Department> empDet = emp.join(Employee_.departments);
+
+            Subquery<Integer> sq = c.subquery(Integer.class);
+            Root<Department> dept = sq.from(Department.class);
+            // Department d JOIN d.employees de JOIN de.projects p
+            Join<Employee, Project> project = dept
+                    .join(Department_.employees)
+                    .join(Employee_.projects);
+            
+            sq.select(dept.get(Department_.id))
+                    .distinct(true)
+                    .where(cb.like(
+                    cb.upper(project.get(Project_.name)), 
+                    cb.upper(cb.parameter(String.class, "projectName"))));
+
+            c.select(emp).where(
+                    cb.in(empDet.get(Department_.id)).value(sq));
+            
+            TypedQuery<Employee> q = em.createQuery(c);
+            q.setParameter("projectName", "tel%");
+            List<Employee> projects = q.getResultList();
+            print(projects, "\t", "\n");
+        }
+        
         System.out.println("\n-------------\n");        
     }
     
