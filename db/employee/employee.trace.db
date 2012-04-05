@@ -1285,3 +1285,6 @@ SELECT t1.EMP_ID, t1.COMM, t1.DOB, t1.TYPE, t1.PHONE, t1.PIC, t1.SAL, t1.S_DATE,
 	at org.eclipse.persistence.internal.jpa.EJBQueryImpl.getResultList(EJBQueryImpl.java:742)
 	at com.sevenrtc.jpa2employee.JPA2Employee.criteriaSubqueries(JPA2Employee.java:557)
 	at com.sevenrtc.jpa2employee.JPA2Employee.main(JPA2Employee.java:132)
+04-05 16:33:52 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT NAME, CASE WHEN (DTYPE = CLASS COM[*].SEVENRTC.JPA2EMPLOYEE.DESIGNPROJECT) THEN 'Development' WHEN (DTYPE = CLASS COM.SEVENRTC.JPA2EMPLOYEE.QUALITYPROJECT) THEN 'QA' ELSE 'Non-Development' END  FROM PROJECT "; expected "., (, [, ::, *, /, %, +, -, ||, ~, !~, (, NOT, LIKE, REGEXP, IS, IN, BETWEEN, AND, OR, ,, )"; SQL statement:
+SELECT NAME, CASE WHEN (DTYPE = class com.sevenrtc.jpa2employee.DesignProject) THEN 'Development' WHEN (DTYPE = class com.sevenrtc.jpa2employee.QualityProject) THEN 'QA' ELSE 'Non-Development' END  FROM PROJECT [42001-164]
