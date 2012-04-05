@@ -246,7 +246,7 @@ public class JPA2Employee {
         print(employees, "\t", "\n");
         
         // Multiplos selects
-        List<Tuple> empTuples;
+        List<Tuple> tuples;
         
         // Tupla com ID e nome
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -259,8 +259,8 @@ public class JPA2Employee {
                     .get(EmployeeName_.firstName).alias("name")
                 )
         ).groupBy(emp.get(Employee_.id));
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
          // Mesma query com multiselect
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -271,8 +271,8 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName)
                     .get(EmployeeName_.firstName).alias("name")
         ).groupBy(emp.get(Employee_.id));
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
         List<Object[]> empObjects;
         
@@ -334,8 +334,8 @@ public class JPA2Employee {
                 phones.key().alias("tipo"),
                 phones.value().alias("numero")
         ).groupBy(emp.get(Employee_.id), phones.key());        
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
         // Join Fetch
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -348,6 +348,60 @@ public class JPA2Employee {
                 .orderBy(cb.asc(emp.get(Employee_.id)));       
         employees = em.createQuery(c).getResultList();
         print(employees, "\t", "\n");
+        
+        // Case Expressions
+        
+        /*
+         * Completa. Equivalente a consulta: 
+         * 
+         *     SELECT p.name,
+         *       CASE 
+         *            WHEN TYPE(p) = DesignProject THEN 'Development'
+         *            WHEN TYPE(p) = QualityProject THEN 'QA'
+         *            ELSE 'Non-Development'
+         *        END
+         *       FROM Project p
+         *      WHERE p.employees IS NOT EMPTY
+         */
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        Root<Project> p = t.from(Project.class);
+        t.multiselect(
+                p.get(Project_.name).alias("project"),
+                cb.selectCase()
+                    .when(cb.equal(p.type(), "DesignProject"), "Development")
+                    .when(cb.equal(p.type(), "QualityProject"), "QA")
+                    .otherwise("Non-Development")
+                    .alias("type")
+        ).where(cb.isNotEmpty(p.get(Project_.employees)));
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
+         /*
+         * Simples. Equivalente a consulta: 
+         * 
+         *     SELECT p.name,
+         *       CASE TYPE(p) 
+         *            WHEN DesignProject THEN 'Development'
+         *            WHEN QualityProject THEN 'QA'
+         *            ELSE 'Non-Development'
+         *        END
+         *       FROM Project p
+         *      WHERE p.employees IS NOT EMPTY
+         */
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        p = t.from(Project.class);
+        t.multiselect(
+                p.get(Project_.name).alias("project"),
+                cb.selectCase(p.type().as(String.class))
+                    .when("DesignProject", "Development")
+                    .when("QualityProject", "QA")
+                    .otherwise("Non-Development")
+                    .alias("type")
+        ).where(cb.isNotEmpty(p.get(Project_.employees)));
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
           
         System.out.println("\n-------------\n");
     }
