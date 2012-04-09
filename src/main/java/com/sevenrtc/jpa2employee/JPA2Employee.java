@@ -299,6 +299,7 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName), 
                 dep.get(Department_.name)))
         .groupBy(emp.get(Employee_.id))
+        // Ordenação
         .orderBy(cb.asc(
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName)));
         empDepts = em.createQuery(e).getResultList();
@@ -432,6 +433,35 @@ public class JPA2Employee {
         );
         TypedQuery<Tuple> tupleQ = em.createQuery(t);
         tupleQ.setParameter("soundex", "abacate");
+        tuples = tupleQ.getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
+        // GROUP BY, HAVING e ORDER BY
+        
+        /*
+         * Equivalente a consulta:
+         * 
+         *    SELECT proj.id, proj.name, COUNT(emp) 
+         *      FROM Project proj JOIN proj.employees emp 
+         *  GROUP BY proj 
+         *    HAVING COUNT(emp) >= 2 
+         *  ORDER BY proj.name
+         */
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        p = t.from(Project.class);
+        Join<Project, Employee> projEmps = p.join(Project_.employees);
+        t.multiselect(
+                p.get(Project_.id).alias("id"),
+                p.get(Project_.name).alias("name"),
+                cb.count(projEmps).alias("employees")
+        ).groupBy(p)
+         .having(cb.ge(
+                cb.count(projEmps),
+                cb.parameter(Long.class, "nEmployees")))
+         .orderBy(cb.asc(p.get(Project_.name))); 
+        tupleQ = em.createQuery(t);
+        tupleQ.setParameter("nEmployees", 2);
         tuples = tupleQ.getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
 
