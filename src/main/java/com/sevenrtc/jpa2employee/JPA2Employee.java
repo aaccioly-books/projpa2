@@ -246,7 +246,7 @@ public class JPA2Employee {
         print(employees, "\t", "\n");
         
         // Multiplos selects
-        List<Tuple> empTuples;
+        List<Tuple> tuples;
         
         // Tupla com ID e nome
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -259,8 +259,8 @@ public class JPA2Employee {
                     .get(EmployeeName_.firstName).alias("name")
                 )
         ).groupBy(emp.get(Employee_.id));
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
          // Mesma query com multiselect
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -271,8 +271,8 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName)
                     .get(EmployeeName_.firstName).alias("name")
         ).groupBy(emp.get(Employee_.id));
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
         List<Object[]> empObjects;
         
@@ -334,8 +334,8 @@ public class JPA2Employee {
                 phones.key().alias("tipo"),
                 phones.value().alias("numero")
         ).groupBy(emp.get(Employee_.id), phones.key());        
-        empTuples = em.createQuery(t).getResultList();
-        printCollectionOfTuples(empTuples, "\t", "\n");
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
         
         // Join Fetch
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
@@ -348,7 +348,39 @@ public class JPA2Employee {
                 .orderBy(cb.asc(emp.get(Employee_.id)));       
         employees = em.createQuery(c).getResultList();
         print(employees, "\t", "\n");
-          
+        
+        // Functions
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        emp = t.from(Employee.class);
+        t.multiselect(
+                emp.get(Employee_.id).alias("id"),
+                // Funcao sem argumentos
+                cb.function("DATABASE_PATH", String.class).alias(
+                    "DATABASE_PATH"),
+                // Argumento para parametro externo
+                cb.function("SOUNDEX", String.class, cb.parameter(String.class, 
+                    "soundex")).alias("SOUNDEX"),
+                // Argumento a partir da query
+                cb.function("TAN", Double.class, emp.get(Employee_.id)).alias(
+                    "TAN"),
+                // Funcao matematica entre duas funcoes
+                cb.quot(
+                    cb.function("SIN", Double.class, emp.get(Employee_.id)), 
+                    cb.function("COS", Double.class, emp.get(Employee_.id))
+                ).alias("SIN/COS"),
+                // Funcao chamando funcoes
+                cb.function("POWER", Double.class, 
+                    cb.function("SIN", Double.class, emp.get(Employee_.id)), 
+                    cb.function("COS", Double.class, emp.get(Employee_.id))).
+                    alias("POWER(SIN/COS)")
+        );
+        
+        TypedQuery<Tuple> tupleQ = em.createQuery(t);
+        tupleQ.setParameter("soundex", "abacate");
+        tuples = tupleQ.getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
         System.out.println("\n-------------\n");
     }
     
