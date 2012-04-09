@@ -377,7 +377,7 @@ public class JPA2Employee {
         tuples = em.createQuery(t).getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
         
-         /*
+        /*
          * Simples. Equivalente a consulta: 
          * 
          *     SELECT p.name,
