@@ -349,7 +349,62 @@ public class JPA2Employee {
         employees = em.createQuery(c).getResultList();
         print(employees, "\t", "\n");
         
+        // Case Expressions
+        
+        /*
+         * Completa. Equivalente a consulta: 
+         * 
+         *     SELECT p.name,
+         *       CASE 
+         *            WHEN TYPE(p) = DesignProject THEN 'Development'
+         *            WHEN TYPE(p) = QualityProject THEN 'QA'
+         *            ELSE 'Non-Development'
+         *        END
+         *       FROM Project p
+         *      WHERE p.employees IS NOT EMPTY
+         */
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        Root<Project> p = t.from(Project.class);
+        t.multiselect(
+                p.get(Project_.name).alias("project"),
+                cb.selectCase()
+                    .when(cb.equal(p.type(), "DesignProject"), "Development")
+                    .when(cb.equal(p.type(), "QualityProject"), "QA")
+                    .otherwise("Non-Development")
+                    .alias("type")
+        ).where(cb.isNotEmpty(p.get(Project_.employees)));
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
+         /*
+         * Simples. Equivalente a consulta: 
+         * 
+         *     SELECT p.name,
+         *       CASE TYPE(p) 
+         *            WHEN DesignProject THEN 'Development'
+         *            WHEN QualityProject THEN 'QA'
+         *            ELSE 'Non-Development'
+         *        END
+         *       FROM Project p
+         *      WHERE p.employees IS NOT EMPTY
+         */
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        p = t.from(Project.class);
+        t.multiselect(
+                p.get(Project_.name).alias("project"),
+                cb.selectCase(p.type().as(String.class))
+                    .when("DesignProject", "Development")
+                    .when("QualityProject", "QA")
+                    .otherwise("Non-Development")
+                    .alias("type")
+        ).where(cb.isNotEmpty(p.get(Project_.employees)));
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
         // Functions
+
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
         t = cb.createTupleQuery();
         emp = t.from(Employee.class);
@@ -375,12 +430,11 @@ public class JPA2Employee {
                     cb.function("COS", Double.class, emp.get(Employee_.id))).
                     alias("POWER(SIN/COS)")
         );
-        
         TypedQuery<Tuple> tupleQ = em.createQuery(t);
         tupleQ.setParameter("soundex", "abacate");
         tuples = tupleQ.getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
-        
+
         System.out.println("\n-------------\n");
     }
     
@@ -546,6 +600,51 @@ public class JPA2Employee {
             TypedQuery<Project> q = em.createQuery(c);
             q.setParameter("value", 1.0);
             List<Project> projects = q.getResultList();
+            print(projects, "\t", "\n");
+        }
+        
+        // Não correlacionada + like + upper
+        
+        /*
+         * Equivalente a consulta:
+         *
+         *     SELECT e 
+         *     FROM Employee e JOIN e.departments ed
+         *     WHERE ed.id IN
+         *     (
+         *       SELECT DISTINCT d.id
+         *       FROM Department d JOIN d.employees de
+         *       JOIN de.projects p
+         *       WHERE UPPER(p.name) LIKE UPPER(:projectName)
+         *     )        
+         */
+        {
+            System.out.printf("Subquery %d: \n", ++subqueryCounter);
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Employee> c = cb.createQuery(Employee.class);
+            Root<Employee> emp = c.from(Employee.class);
+            Join<Employee, Department> empDet = emp.join(Employee_.departments);
+
+            Subquery<Integer> sq = c.subquery(Integer.class);
+            Root<Department> dept = sq.from(Department.class);
+            // Department d JOIN d.employees de JOIN de.projects p
+            Join<Employee, Project> project = dept
+                    .join(Department_.employees)
+                    .join(Employee_.projects);
+            
+            sq.select(dept.get(Department_.id))
+                    .distinct(true)
+                    .where(cb.like(
+                    cb.upper(project.get(Project_.name)), 
+                    cb.upper(cb.parameter(String.class, "projectName"))));
+
+            c.select(emp).where(
+                    cb.in(empDet.get(Department_.id)).value(sq));
+            
+            TypedQuery<Employee> q = em.createQuery(c);
+            q.setParameter("projectName", "tel%");
+            List<Employee> projects = q.getResultList();
             print(projects, "\t", "\n");
         }
         
