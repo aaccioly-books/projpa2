@@ -2,6 +2,10 @@ package com.sevenrtc.jpa2employee;
 
 import com.sevenrtc.jpa2employee.dto.EmpDept;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 /**
  *
@@ -138,6 +145,11 @@ public class JPA2Employee {
                 Files.write(toWrite, employee.getPicture());
             }
         }
+        
+        // Metamodel
+        
+        printMetadata(Employee.class, em);
+        
 
     }
     
@@ -563,7 +575,7 @@ public class JPA2Employee {
          *    SELECT e 
          *    FROM Employee e 
          *    WHERE EXISTS (SELECT p 
-         *                    FROM emp.projects p 
+         *                    FROM e.projects p 
          *                   WHERE p.name = :name)
          */
         {
@@ -575,7 +587,7 @@ public class JPA2Employee {
 
 
             Subquery<Project> sq = c.subquery(Project.class);
-            // Equivalente a (SELECT p FROM emp.projects)
+            // Equivalente a (SELECT p FROM e.projects p)
             Root<Employee> sqEmp = sq.correlate(emp);
             Join<Employee, Project> project =
                     sqEmp.join(Employee_.projects);
@@ -737,6 +749,48 @@ public class JPA2Employee {
         if (city != null) { q.setParameter("city", city);}
 
         return q.getResultList();
+    }
+    
+    public static <T> void printMetadata(Class<T> entityClass, EntityManager em) {
+        final Metamodel mm = em.getMetamodel();
+        EntityType<T> entityType = mm.entity(entityClass);
+        System.out.println(entityType.getName());
+        System.out.println("-------------");
+        for (Attribute<? super T, ?> attribute : entityType.getAttributes()) {
+            System.out.printf("\t%s %s %s\n", attribute.getName(),
+                    getJavaType(attribute),
+                    attribute.getPersistentAttributeType());
+        }
+        System.out.println("-------------");
+    }
+    
+    public static String getJavaType(Attribute<?, ?> attribute) {
+        StringBuilder sb = new StringBuilder();
+        if (attribute.getJavaType().isArray()) {
+            sb.append(attribute.getJavaType().getComponentType().getName());
+            sb.append("[]");
+        } else {
+           sb.append(attribute.getJavaType().getName()); 
+        }
+        // Print Generic arguments
+        if (attribute.getJavaType().getTypeParameters().length > 0) {
+            Type type = ((Field) attribute.getJavaMember()).getGenericType();
+            if (type instanceof ParameterizedType) {
+                ParameterizedType pm = (ParameterizedType) type;
+                sb.append('<');
+                Type[] actualTypeArguments = pm.getActualTypeArguments();
+                for (int i = 0; i < actualTypeArguments.length; i++) {
+                    Type argumentType = actualTypeArguments[i];
+                    sb.append(argumentType.toString().substring(6));
+                    if (i < actualTypeArguments.length - 1) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append('>');
+            }
+        }
+        
+        return sb.toString();
     }
     
     public static void print(Collection<?> col, String prefix, String suffix) {
