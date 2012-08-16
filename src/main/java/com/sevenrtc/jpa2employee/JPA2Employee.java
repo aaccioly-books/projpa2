@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +15,7 @@ import java.util.logging.Logger;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
@@ -337,7 +337,6 @@ public class JPA2Employee {
         emp = t.from(Employee.class);
         MapJoin<Employee, PhoneType, String> phones = 
                 emp.join(Employee_.phoneNumber);
-                //emp.joinMap("phoneNumber"); // API não tipada -> joinMap
         t.multiselect(
                 emp.get(Employee_.id).alias("id"),
                 emp.get(Employee_.employeeName).get(EmployeeName_.firstName)
@@ -347,6 +346,29 @@ public class JPA2Employee {
                 phones.key().alias("tipo"),
                 phones.value().alias("numero")
         ).groupBy(emp.get(Employee_.id), phones.key());        
+        tuples = em.createQuery(t).getResultList();
+        printCollectionOfTuples(tuples, "\t", "\n");
+        
+        // Query para mapas com EntityType
+        System.out.printf("Criteria %d: \n", ++criteriaCounter);
+        t = cb.createTupleQuery();
+        emp = t.from(Employee.class);
+        EntityType<Employee> emp_ = emp.getModel();
+        EmbeddableType<EmployeeName> empName_ = em.getMetamodel()
+                .embeddable(EmployeeName.class);
+        phones = emp.join(emp_.getMap("phoneNumber", PhoneType.class, String.class));
+                //emp.joinMap("phoneNumber"); // API não tipada -> joinMap
+        t.multiselect(
+                emp.get(emp_.getSingularAttribute("id", Integer.class)).alias("id"),
+                emp.get(emp_.getSingularAttribute("employeeName", EmployeeName.class))
+                    .get(empName_.getSingularAttribute("firstName", String.class))
+                    .alias("nome"),
+                emp.get(emp_.getSingularAttribute("employeeName", EmployeeName.class))
+                    .get(empName_.getSingularAttribute("lastName", String.class))
+                    .alias("sobrenome"),
+                phones.key().alias("tipo"),
+                phones.value().alias("numero")
+        ).groupBy(emp.get(emp_.getSingularAttribute("id", Integer.class)), phones.key());        
         tuples = em.createQuery(t).getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
         
@@ -382,8 +404,8 @@ public class JPA2Employee {
         t.multiselect(
                 p.get(Project_.name).alias("project"),
                 cb.selectCase()
-                    .when(cb.equal(p.type(), "DesignProject"), "Development")
-                    .when(cb.equal(p.type(), "QualityProject"), "QA")
+                    .when(cb.equal(p.type(), DesignProject.class), "Development")
+                    .when(cb.equal(p.type(), QualityProject.class), "QA")
                     .otherwise("Non-Development")
                     .alias("type")
         ).where(cb.isNotEmpty(p.get(Project_.employees)));
