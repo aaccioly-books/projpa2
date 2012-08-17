@@ -4,11 +4,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -25,17 +23,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import static com.sevenrtc.jpa2employee.util.FormattingUtils.formatarData;
 import java.util.*;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.MapKeyEnumerated;
 import javax.persistence.OneToMany;
 
 /**
@@ -48,7 +46,6 @@ import javax.persistence.OneToMany;
 @Table(name = "EMP", schema = "HR")
 public class Employee implements Serializable {
 
-    public static final String LOCAL_AREA_CODE = "613";
     private static final long serialVersionUID = 1L;
     
     @GeneratedValue(/*generator = "EMP_SEQ",*/ strategy = GenerationType.IDENTITY)
@@ -76,8 +73,6 @@ public class Employee implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "S_DATE")
     private Date startDate;
-    @Transient
-    private String phoneNum;
     
     @ManyToOne
     @JoinColumn(name = "MANAGER_ID")
@@ -98,13 +93,6 @@ public class Employee implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "PROJ_ID"))
     private Collection<Project> projects;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name="state", column=@Column(name="PROVINCE")),
-        @AttributeOverride(name="zip", column=@Column(name="POSTAL_CODE"))
-    })
-    private Address address;
-
     @ElementCollection
     @CollectionTable(
             name="VACATION", 
@@ -120,12 +108,23 @@ public class Employee implements Serializable {
     @Column(name="NICKNAME")
     private Collection<String> nickNames;
     
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name="state", column=@Column(name="PROVINCE")),
+        @AttributeOverride(name="zip", column=@Column(name="POSTAL_CODE"))
+    })
+    private Address residence;
+    
+    @Embedded
+    @AttributeOverride(name="phoneNumberForDb", column=@Column(name="MAIN_PHONE"))
+    private Phone primaryPhone;
+    
     @ElementCollection
-    @CollectionTable(name="EMP_PHONE")
+    @CollectionTable(name="EMP_PHONES", 
+            joinColumns=@JoinColumn(name="EMP_ID"))
     @MapKeyEnumerated(EnumType.STRING)
     @MapKeyColumn(name="PHONE_TYPE")
-    @Column(name="PHONE_NUM")
-    private Map<PhoneType, String> phoneNumber;
+    private Map<PhoneType, Phone> phones; 
     
     public int getId() {
         return id;
@@ -191,32 +190,6 @@ public class Employee implements Serializable {
         this.startDate = startDate;
     }
 
-    public String getPhoneNum() {
-        return phoneNum;
-    }
-
-    public void setPhoneNum(String phoneNum) {
-        this.phoneNum = phoneNum;
-    }
-
-    @Access(AccessType.PROPERTY)
-    @Column(name = "PHONE")
-    protected String getPhoneNumberForDb() {
-        if (phoneNum.length() == 10) {
-            return phoneNum;
-        } else {
-            return LOCAL_AREA_CODE + phoneNum;
-        }
-    }
-
-    protected void setPhoneNumberForDb(String num) {
-        if (num.startsWith(LOCAL_AREA_CODE)) {
-            phoneNum = num.substring(3);
-        } else {
-            phoneNum = num;
-        }
-    }
-
     public Collection<Employee> getDirects() {
         return directs;
     }
@@ -257,14 +230,6 @@ public class Employee implements Serializable {
         this.projects = projects;
     }
 
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
     public Collection<String> getNickNames() {
         return nickNames;
     }
@@ -281,12 +246,28 @@ public class Employee implements Serializable {
         this.vacationBookings = vacationBookings;
     }
 
-    public Map<PhoneType, String> getPhoneNumber() {
-        return phoneNumber;
+    public Address getResidence() {
+        return residence;
     }
 
-    public void setPhoneNumber(Map<PhoneType, String> phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setResidence(Address residence) {
+        this.residence = residence;
+    }
+
+    public Phone getPrimaryPhone() {
+        return primaryPhone;
+    }
+
+    public void setPrimaryPhone(Phone primaryPhone) {
+        this.primaryPhone = primaryPhone;
+    }
+
+    public Map<PhoneType, Phone> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(Map<PhoneType, Phone> phones) {
+        this.phones = phones;
     }
     
     @Override
@@ -311,7 +292,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "Employee{" + "id=" + id + ", employeeName=" + employeeName + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) + ", phoneNum=" + phoneNum + ", departments=" + departments + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", address=" + address + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + ", phoneNumber=" + phoneNumber + '}';
+        return "Employee{" + "id=" + id + ", employeeName=" + employeeName + ", salary=" + salary + ", comments=" + comments + ", employeeType=" + employeeType + ", dob=" + formatarData(dob) + ", startDate=" + formatarData(startDate) +  ", departments=" + departments + ", parkingSpace=" + parkingSpace + ", projects=" + projects + ", vacationBookings=" + vacationBookings + ", nickNames=" + nickNames + "residence=" + residence + ", primaryPhone=" + primaryPhone + ", phones=" + phones + '}';
     }
 
 }
