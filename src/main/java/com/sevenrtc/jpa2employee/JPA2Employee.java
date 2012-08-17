@@ -41,9 +41,7 @@ public class JPA2Employee {
         
         final List<Department> departments = Collections.singletonList(it);
         
-        Employee employee1 = new Employee();
-        employee1.setPhoneNum("1234567");
-        
+        Employee employee1 = new Employee();        
         employee1.setEmployeeName(new EmployeeName("Anthony", "Accioly"));
         employee1.setSalary(1l);
         employee1.setComments("He is ok!");
@@ -63,33 +61,43 @@ public class JPA2Employee {
         Calendar startDate = Calendar.getInstance();
         startDate.set(2010, 8, 1);
         employee1.setStartDate(startDate.getTime());
-        EnumMap<PhoneType,String> phones = new EnumMap<>(PhoneType.class);
-        phones.put(PhoneType.HOME, "1234567");
-        phones.put(PhoneType.MOBILE, "7654321");
-        employee1.setPhoneNumber(phones);
+        
         employee1.setDepartments(departments);
         
         em.persist(employee1);
 
         Employee employee2 = new Employee();
         employee2.setEmployeeName(new EmployeeName("Someone", "Else"));
-        employee2.setPhoneNum("1231234567");
         employee2.setDepartments(departments);
 
         em.persist(employee2);
-
+        
         Address address = new Address();
         address.setStreet("Rua Angélica");
         address.setCity("São Paulo");
         address.setState("São Paulo");
         address.setZip("01222-010");
+        
+        {
+            Phone primaryPhoneCfEmp1 = new Phone();
+            primaryPhoneCfEmp1.setPhoneNum("99991234");
+            employee1.setPrimaryPhone(primaryPhoneCfEmp1);
 
-        employee1.setAddress(address);
-        em.merge(employee1);
+            Phone secondaryPhoneCfEmp1 = new Phone();
+            secondaryPhoneCfEmp1.setPhoneNum("021322233333");
+
+            EnumMap<PhoneType, Phone> phones = new EnumMap<>(PhoneType.class);
+            phones.put(PhoneType.MOBILE, primaryPhoneCfEmp1);
+            phones.put(PhoneType.HOME, secondaryPhoneCfEmp1);
+            employee1.setPhones(phones);
+
+            employee1.setResidence(address);
+
+            em.merge(employee1);
+        }
         
         Employee employee3 = new Employee();
         employee3.setEmployeeName(new EmployeeName("Flavio", "Antunes"));
-        employee3.setPhoneNum("12345");
         em.persist(employee3);
         
         employee1.setManager(employee3);
@@ -335,8 +343,8 @@ public class JPA2Employee {
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
         t = cb.createTupleQuery();
         emp = t.from(Employee.class);
-        MapJoin<Employee, PhoneType, String> phones = 
-                emp.join(Employee_.phoneNumber);
+        MapJoin<Employee, PhoneType, Phone> phones = emp
+                .join(Employee_.phones);
         t.multiselect(
                 emp.get(Employee_.id).alias("id"),
                 emp.get(Employee_.employeeName).get(EmployeeName_.firstName)
@@ -344,7 +352,7 @@ public class JPA2Employee {
                 emp.get(Employee_.employeeName).get(EmployeeName_.lastName)
                     .alias("sobrenome"),
                 phones.key().alias("tipo"),
-                phones.value().alias("numero")
+                phones.value().get(Phone_.phoneNumberForDb).alias("numero")
         ).groupBy(emp.get(Employee_.id), phones.key());        
         tuples = em.createQuery(t).getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
@@ -356,8 +364,9 @@ public class JPA2Employee {
         EntityType<Employee> emp_ = emp.getModel();
         EmbeddableType<EmployeeName> empName_ = em.getMetamodel()
                 .embeddable(EmployeeName.class);
-        phones = emp.join(emp_.getMap("phoneNumber", PhoneType.class, String.class));
-                //emp.joinMap("phoneNumber"); // API não tipada -> joinMap
+        phones = emp.join(emp_.getMap("phones", PhoneType.class, Phone.class));
+        EmbeddableType<Phone> phone_ = em.getMetamodel().embeddable(Phone.class);
+                //emp.join("contactInfo").joinMap("phoneNumber"); // API não tipada -> joinMap
         t.multiselect(
                 emp.get(emp_.getSingularAttribute("id", Integer.class)).alias("id"),
                 emp.get(emp_.getSingularAttribute("employeeName", EmployeeName.class))
@@ -367,7 +376,8 @@ public class JPA2Employee {
                     .get(empName_.getSingularAttribute("lastName", String.class))
                     .alias("sobrenome"),
                 phones.key().alias("tipo"),
-                phones.value().alias("numero")
+                phones.value().get(phone_
+                .getSingularAttribute("phoneNumberForDb", String.class)).alias("numero")
         ).groupBy(emp.get(emp_.getSingularAttribute("id", Integer.class)), phones.key());        
         tuples = em.createQuery(t).getResultList();
         printCollectionOfTuples(tuples, "\t", "\n");
@@ -376,8 +386,8 @@ public class JPA2Employee {
         System.out.printf("Criteria %d: \n", ++criteriaCounter);
         c = cb.createQuery(Employee.class);
         emp = c.from(Employee.class);
-        Fetch<Employee, String> fetchPhones = 
-                emp.fetch(Employee_.phoneNumber, JoinType.LEFT);
+        Fetch<Employee, Phone> fetchPhones = 
+                emp.fetch(Employee_.phones, JoinType.LEFT);
         c.select(emp)
                 .distinct(true)
                 .orderBy(cb.asc(emp.get(Employee_.id)));       
@@ -752,8 +762,8 @@ public class JPA2Employee {
             criteriaCount++;
         }     
         if (city != null) {
-            criteria = cb.and(criteria, 
-                    cb.equal(emp.get(Employee_.address).get(Address_.city), 
+            criteria = cb.and(criteria,
+                    cb.equal(emp.get(Employee_.residence).get(Address_.city),
                     cb.parameter(String.class, "city")));
             criteriaCount++;
         }

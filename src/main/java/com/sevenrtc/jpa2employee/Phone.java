@@ -1,71 +1,59 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 /**
  *
  * @author Anthony
  */
-@Entity
+@Embeddable
+@Access(AccessType.FIELD)
 public class Phone implements Serializable {
+    
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private int type;
-    private int num;
+    public static final String LOCAL_AREA_CODE = "011";
+    
+    @Transient
+    private String phoneNum;
 
-    public int getId() {
-        return id;
+    public String getPhoneNum() {
+        return phoneNum;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
     }
 
-    public int getNum() {
-        return num;
-    }
-
-    public void setNum(int num) {
-        this.num = num;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (int) id;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Phone)) {
-            return false;
+    @Access(AccessType.PROPERTY)
+    @Column(name = "PHONE")
+    protected String getPhoneNumberForDb() {
+        if (phoneNum.length() > 10) {
+            return phoneNum;
+        } else {
+            return LOCAL_AREA_CODE + phoneNum;
         }
-        Phone other = (Phone) object;
-        if (this.id != other.id) {
-            return false;
+    }
+
+    protected void setPhoneNumberForDb(String num) {
+        if (num.startsWith(LOCAL_AREA_CODE)) {
+            phoneNum = num.substring(3);
+        } else {
+            phoneNum = num;
         }
-        return true;
     }
 
     @Override
     public String toString() {
-        return "jpa2employee.Phone[ id=" + id + " ]";
+        return "Phone{phoneNum=" + phoneNum + '}';
     }
     
 }
