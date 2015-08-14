@@ -47,7 +47,7 @@ public class PrintJob implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (int) id;
+        hash += id;
         return hash;
     }
 
@@ -58,10 +58,7 @@ public class PrintJob implements Serializable {
             return false;
         }
         PrintJob other = (PrintJob) object;
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
 
     @Override

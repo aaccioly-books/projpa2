@@ -46,13 +46,9 @@ public class EmpDept {
             return false;
         }
         final EmpDept other = (EmpDept) obj;
-        if (!Objects.equals(this.employeeName, other.employeeName)) {
-            return false;
-        }
-        if (!Objects.equals(this.departmentName, other.departmentName)) {
-            return false;
-        }
-        return true;
+
+        return Objects.equals(this.employeeName, other.employeeName)
+                && Objects.equals(this.departmentName, other.departmentName);
     }
 
     @Override

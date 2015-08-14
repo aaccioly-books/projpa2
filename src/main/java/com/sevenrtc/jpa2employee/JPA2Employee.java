@@ -1,17 +1,16 @@
 package com.sevenrtc.jpa2employee;
 
+import com.google.common.io.ByteStreams;
 import com.sevenrtc.jpa2employee.dto.EmpDept;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
@@ -46,20 +45,15 @@ public class JPA2Employee {
         employee1.setSalary(1l);
         employee1.setComments("He is ok!");
 
-        try {
-            final Path p = Paths.get(JPA2Employee.class.getResource(
-                    "/images/Manager-Cropped.jpg").toURI());
-            employee1.setPicture(Files.readAllBytes(p));
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(JPA2Employee.class.getName()).log(Level.SEVERE, null, ex);
-        }
- 
+       employee1.setPicture(
+               ByteStreams.toByteArray(JPA2Employee.class.getResourceAsStream("/images/Manager-Cropped.jpg")));
+
         employee1.setEmployeeType(EmployeeType.CONTRACT_EMPLOYEE);
         Calendar dob = Calendar.getInstance();
-        dob.set(1987, 6, 2);
+        dob.set(1987, Calendar.JULY, 2);
         employee1.setDob(dob);
         Calendar startDate = Calendar.getInstance();
-        startDate.set(2010, 8, 1);
+        startDate.set(2010, Calendar.SEPTEMBER, 1);
         employee1.setStartDate(startDate.getTime());
         
         employee1.setDepartments(departments);
@@ -844,7 +838,7 @@ public class JPA2Employee {
             System.out.print(prefix + "<");
             final Iterator<TupleElement<?>> it = tuple.getElements().iterator();
             while (it.hasNext()) {
-                TupleElement<? extends Object> tupleElement = it.next();
+                TupleElement<?> tupleElement = it.next();
                 System.out.printf("%s = %s", tupleElement.getAlias(), 
                         tuple.get(tupleElement));
                 if (it.hasNext()) {

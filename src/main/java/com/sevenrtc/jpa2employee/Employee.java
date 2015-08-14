@@ -1,9 +1,6 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
@@ -284,10 +281,7 @@ public class Employee implements Serializable {
             return false;
         }
         Employee other = (Employee) object;
-        if (!(this.id == other.id)) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
 
     @Override

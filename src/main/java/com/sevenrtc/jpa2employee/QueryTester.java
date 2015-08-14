@@ -59,14 +59,14 @@ public class QueryTester {
         }
     }
 
-    private static void printResult(Object result) throws Exception {
+    private static void printResult(Object result) {
         if (result == null) {
             System.out.print("NULL");
         } else if (result instanceof Object[]) {
             Object[] row = (Object[]) result;
             System.out.print("[");
-            for (int i = 0; i < row.length; i++) {
-                printResult(row[i]);
+            for (Object aRow : row) {
+                printResult(aRow);
             }
             System.out.print("]");
         } else if (result instanceof Long
