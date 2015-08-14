@@ -1,11 +1,11 @@
 package com.sevenrtc.jpa2employee;
 
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 /**
- *
  * @author Anthony Accioly <a.accioly at 7rtc.com>
  */
 @Embeddable
@@ -49,13 +49,8 @@ public class EmployeeName implements Serializable {
             return false;
         }
         final EmployeeName other = (EmployeeName) obj;
-        if ((this.firstName == null) ? (other.firstName != null) : !this.firstName.equals(other.firstName)) {
-            return false;
-        }
-        if ((this.lastName == null) ? (other.lastName != null) : !this.lastName.equals(other.lastName)) {
-            return false;
-        }
-        return true;
+
+        return Objects.equals(this.firstName, other.firstName) && Objects.equals(this.lastName, other.lastName);
     }
 
     @Override
@@ -70,5 +65,5 @@ public class EmployeeName implements Serializable {
     public String toString() {
         return "EmployeeName{" + "firstName=" + firstName + ", lastName=" + lastName + '}';
     }
-    
+
 }

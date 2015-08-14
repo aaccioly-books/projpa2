@@ -48,10 +48,7 @@ public class PrintQueue implements Serializable {
             return false;
         }
         PrintQueue other = (PrintQueue) object;
-        if ((this.name == null && other.name != null) || (this.name != null && !this.name.equals(other.name))) {
-            return false;
-        }
-        return true;
+        return !((this.name == null && other.name != null) || (this.name != null && !this.name.equals(other.name)));
     }
 
     @Override
